@@ -10,7 +10,7 @@ function App() {
       <h1>Lito spelar Ping Pong med Stebors kulor</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
-          Hur många set spelade Lito? {count}
+          Hur många set spelade Lito med Stebors kulor? {count}
         </button>
         <br></br>
         <br></br>
