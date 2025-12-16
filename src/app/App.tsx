@@ -5,7 +5,6 @@ function App() {
 
   return (
     <>
-      <h1>Lito spelar Ping Pong</h1>
       <Coupon />
     </>
     

@@ -21,6 +21,13 @@ export interface DrawEvent {
   odds?: Odds;
 }
 
+export interface CouponEvent {
+  eventNumber: number;
+  description: string;
+  odds?: Odds;
+  svenskaFolket?: SvenskaFolket;
+}
+
 export interface MinMaxRule {
   value: OneXTwo;
   min: number;
