@@ -1,6 +1,7 @@
 import Spinner from "../../components/Spinner";
 import { useCouponLogic } from "./hooks/useCouponLogic";
 import { mapDrawEventsToCouponEvents } from "./utils/couponMapper"
+import "../../../index.css";
 
 export default function Coupon() {
   const {
@@ -12,60 +13,59 @@ export default function Coupon() {
 
   if (loading) return <Spinner />;
 
-if (error) {
-  return (
-    <p style={{ color: "red" }}>
-      ❌ {error}
-    </p>
-  );
-}
+  if (error) {
+    return (
+      <p style={{ color: "red" }}>
+        ❌ {error}
+      </p>
+    );
+  }
 
-if (!hasEvents) {
-  return (
-    <p style={{ color: "orange" }}>
-      ⚠️ API connected – no events available yet
-      <p>
+  if (!hasEvents) {
+    return (
+      <p style={{ color: "orange" }}>
+        ⚠️ API connected – no events available yet
+        <p>
           Betting events are usually published closer to match day.
           Please check back later.
         </p>
-    </p>
-    
-  );
-}
-
-const couponEvents = mapDrawEventsToCouponEvents(events);
-return (
-    <div>
-      {/* Connection status ok */}
-      <p style={{ color: "green" }}>
-        ✅ API connected – events available 🦫+🐹
       </p>
-      {/* Events */}
-    {couponEvents.map(event => (
-      <div key={event.eventNumber}>
-        <h4>{event.eventNumber}. {event.description}</h4>
-        {event.odds ? (
-          <div>
-            Odds: {event.odds.one+ " "}
-            {event.odds.x+ " "}
-            {event.odds.two+ " "}
-          </div>
-        ) : (
-          <p>Odds not available</p>
-        )}
 
-        {event.svenskaFolket ? (
-          <div>
-            Folket: {event.svenskaFolket.one+ "% "}
-            {event.svenskaFolket.x+ "% "}
-            {event.svenskaFolket.two+ "% "}
-          </div>
-        ) : (
-          <p>People not available</p>
-        )}
+    );
+  }
+
+  const couponEvents = mapDrawEventsToCouponEvents(events);
+
+  return (
+    <section className="tip-card">
+      <p className="text-muted">
+      ✅ API connected – events available
+      </p>
+
+      {/* Grid Header */}
+      <div className="grid-header">
+        <span></span>
+        <span>1</span>
+        <span>X</span>
+        <span>2</span>
       </div>
-    ))}
-  </div>
 
+      {/* Grid Rows */}
+      {couponEvents.map(event => (
+        <div key={event.eventNumber} className="grid-row">
+          <div className="match-info">
+            <strong>{event.eventNumber}. {event.description}</strong>
+            
+            <p className="stat-text">Price: {event.odds.one+" / "}{event.odds.x+ " / "}{event.odds.two+ " "}</p>
+            <p className="stat-text">People: {event.svenskaFolket.one+ "% / "}{event.svenskaFolket.x+ "% / "}{event.svenskaFolket.two+ "% "}
+            </p>
+          </div>
+          <input type="number"  />
+          <input type="number"  />
+          <input type="number"  />
+        </div>
+      ))}
+    </section>
   );
-}
+};
+
