@@ -56,9 +56,8 @@ export default function Coupon() {
           <div className="match-info">
             <strong>{event.eventNumber}. {event.description}</strong>
             
-            <p className="stat-text">Price: {event.odds.one+" / "}{event.odds.x+ " / "}{event.odds.two+ " "}</p>
-            <p className="stat-text">People: {event.svenskaFolket.one+ "% / "}{event.svenskaFolket.x+ "% / "}{event.svenskaFolket.two+ "% "}
-            </p>
+            <p className="stat-text">Price:</p>
+            <p className="stat-text">People:</p>
           </div>
           <input type="number"  />
           <input type="number"  />
@@ -66,6 +65,8 @@ export default function Coupon() {
         </div>
       ))}
     </section>
+
+
   );
 };
 
