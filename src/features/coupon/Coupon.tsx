@@ -55,9 +55,8 @@ export default function Coupon() {
         <div key={event.eventNumber} className="grid-row">
           <div className="match-info">
             <strong>{event.eventNumber}. {event.description}</strong>
-            
-            <p className="stat-text">Price:</p>
-            <p className="stat-text">People:</p>
+            <p className="stat-text">Price: {event.odds?.one} / {event.odds?.one} / {event.odds?.two}</p>
+            <p className="stat-text">People: {event.svenskaFolket?.one}%/ {event.svenskaFolket?.x}%/ {event.svenskaFolket?.two}%</p>
           </div>
           <input type="number"  />
           <input type="number"  />
