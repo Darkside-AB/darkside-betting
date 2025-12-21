@@ -1,8 +1,8 @@
+import { Routes, Route, Navigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Coupon from "../features/coupon/Coupon";
 import "./index.css";
-
 
 function App() {
   return (
@@ -12,30 +12,40 @@ function App() {
       <main className="container">
         <section className="hero container">
           <div>
-            <h1>Welcome to Darkside Betting</h1>
-            <p>Where you can play with balls but of course also lose them</p>
-            <button className="btn">Log in to get AI benefits</button>
+            <h1>Welcome to Darkside</h1>
+            <p>Play with balls, not loose them</p>
+            <Link to="/darkside-betting/stryktipset">
+              <button className="btn btn-stryktipset">Stryktipset</button>
+            </Link>
+            <Link to="/darkside-betting/europatipset">
+              <button className="btn btn-europatipset">Europatipset</button>
+            </Link>
           </div>
 
-          <div className="stats">
-            <div className="stat">
-              <h3>13</h3>
-              <span>Events</span>
-            </div>
-            <div className="stat">
-              <h3>1 / X / 2</h3>
-              <span>AI-Powered</span>
-            </div>
-            <div className="stat">
-              <h3>35%</h3>
-              <span>winning*</span>
-            </div>
+          {/* Buttons for navigation */}
+          <div className="navigation-buttons">
           </div>
         </section>
-        <Coupon />
+
+        {/* ROUTED CONTENT */}
+        <Routes>
+          {/* Redirect if visiting /darkside-betting directly */}
+          <Route
+            path="/darkside-betting"
+            element={<Navigate to="/darkside-betting/europatipset" />}
+          />
+
+          {/* Route to match /darkside-betting/:couponType */}
+          <Route
+            path="/darkside-betting/:couponType"
+            element={<Coupon />}
+          />
+        </Routes>
       </main>
+
       <Footer />
     </>
   );
 }
+
 export default App;
