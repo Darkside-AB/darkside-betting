@@ -6,8 +6,8 @@ const Header = () => {
           Darkside<span>Betting</span>
         </div>
         <nav>
-          <a href="#">Tipping guide</a>
-          <a href="#">Statistics</a>
+          <a href="#">Guide</a>
+          <a href="#">Stats</a>
           <a href="#">Login</a>
         </nav>
       </div>

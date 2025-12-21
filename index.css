@@ -1,4 +1,11 @@
 /* ================= BODY & ROOT ================= */
+body {
+  margin: 0; /* Remove default body margin */
+  padding: 0; /* Remove default body padding */
+  height: 100%; /* Ensure the body takes up the full height of the viewport */
+  display: flex;
+  flex-direction: column;
+}
 :root {
   --bg: #0f172a;
   --bg-soft: #111827;
@@ -70,7 +77,7 @@ nav a:hover {
 .container {
   max-width: 1200px;
   margin: auto;
-  padding: 2rem 1rem 4rem; /* smaller padding for mobile */
+    padding: 1rem 1rem 2rem;
 }
 
 /* ================= HERO ================= */
@@ -78,7 +85,8 @@ nav a:hover {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 2rem;
-  margin-top: 2rem;
+  margin-top: 0; /* remove extra top margin */
+  padding-bottom: 0;
   align-items: center;
   
 }
@@ -97,18 +105,46 @@ nav a:hover {
 
 /* ================= BUTTONS ================= */
 .btn {
-  background: var(--accent);
-  color: #052e16;
-  border: none;
-  padding: 0.8rem 1.3rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
+  padding: 15px 30px;
+  margin: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: 2px solid transparent; /* Transparent border for the effect */
+  border-radius: 10px;
   cursor: pointer;
+  outline: none;
+  background-color: #333; /* Dark background */
+  color: white;
+  transition: all 0.3s ease; /* Smooth transition for effects */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Shadow to make the button pop */
 }
 
 .btn:hover {
-  background: var(--accent-soft);
+  background-color: #111; /* Darken on hover */
+  border-color: #e74c3c; /* Red border on hover */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Stronger shadow on hover */
+  transform: scale(1.05); /* Make button slightly larger */
 }
+
+.btn-stryktipset {
+  background-color: #e74c3c; /* Dark red for "evil" vibes */
+  border: 2px solid #e74c3c; /* Match the border with the background */
+}
+
+.btn-stryktipset:hover {
+  background-color: #c0392b; /* Darker red on hover */
+}
+
+.btn-europatipset {
+  background-color: #2c3e50; /* Dark blue-gray */
+  border: 2px solid #2c3e50; /* Match border with the background */
+}
+
+.btn-europatipset:hover {
+  background-color: #34495e; /* Lighter blue-gray on hover */
+}
+
 
 /* ================= STATS ================= */
 .stats {
@@ -163,6 +199,23 @@ nav a:hover {
 .text-muted {
   color: var(--text-muted);
   margin-bottom: 1rem;
+}
+
+/* ================= API WARNING ================= */
+.api-warning {
+  color: orange;
+  padding: 20px;
+  background-color: #1e293b; /* dark card background */
+  border-radius: 8px;
+  max-width: 600px;
+  margin: 20px auto; /* centers the div horizontally */
+  text-align: center;
+  line-height: 1.4;
+}
+
+.api-warning p {
+  margin-top: 10px;
+  color: #fbbf24; /* slightly different shade for readability */
 }
 
 /* GRID HEADER AND ROWS */
@@ -269,6 +322,17 @@ footer > div {
 
   .hero p {
     max-width: 100%;
+  }
+
+  /* ====== Buttons on mobile ====== */
+  .btn {
+    padding: 10px 20px;  /* smaller padding */
+    font-size: 16px;     /* smaller text */
+  }
+
+  .btn-stryktipset,
+  .btn-europatipset {
+    width: 100%;         /* full width for mobile buttons */
   }
   
 }

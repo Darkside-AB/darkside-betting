@@ -53,6 +53,28 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+.btn {
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+}
+
+.btn-stryktipset {
+  background-color: #28a745;
+}
+
+.btn-europatipset {
+  background-color: #ffc107;
+}
 
 @media (prefers-color-scheme: light) {
   :root {
