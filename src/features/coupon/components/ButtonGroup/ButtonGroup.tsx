@@ -39,10 +39,10 @@ const ButtonGroup = ({
 
   // Calculate weight percentages
   const weights = React.useMemo(() => {
-    const total = values.reduce((sum, v) => sum + v, 0);
-    if (total === 0) return [0, 0, 0];
-    return values.map(v => Math.round((v / total) * 100));
-  }, [values]);
+  const total = values.reduce<number>((sum, v) => sum + v, 0); // <--- number accumulator
+  if (total === 0) return [0, 0, 0];
+  return values.map(v => Math.round((v / total) * 100));
+}, [values]);
 
   return (
     <div className="buttonGroup">
