@@ -14,6 +14,8 @@ export default function Coupon() {
   const { events, loading, hasEvents, error } = useCouponLogic(couponType);
 
   const [selections, setSelections] = React.useState<Record<number, number>>({});
+   console.log("Current selections:", selections);
+
 
   const handleSelectionChange = React.useCallback(
   (eventNumber: number, playableCount: number) => {
