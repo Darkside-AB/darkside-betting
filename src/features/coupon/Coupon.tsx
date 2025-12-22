@@ -1,7 +1,9 @@
+import React from "react";
 import Spinner from "../../components/Spinner";
 import { useParams } from "react-router-dom";
 import { useCouponLogic } from "./hooks/useCouponLogic";
-import { mapDrawEventsToCouponEvents } from "./utils/couponMapper"
+import { mapDrawEventsToCouponEvents } from "./utils/couponMapper";
+import ButtonGroup from "./components/ButtonGroup/ButtonGroup";
 import "../../../index.css";
 
 type CouponType = "europatipset" | "stryktipset";
@@ -9,36 +11,33 @@ type CouponType = "europatipset" | "stryktipset";
 export default function Coupon() {
   const { couponType } = useParams<{ couponType: CouponType }>();
 
-  console.log("couponType:", couponType);
+  const { events, loading, hasEvents, error } = useCouponLogic(couponType);
 
-  const {
-    events,
-    loading,
-    hasEvents,
-    error,
-  } = useCouponLogic(couponType);
+  const [selections, setSelections] = React.useState<Record<number, number>>({});
+   console.log("Current selections:", selections);
+
+
+  const handleSelectionChange = React.useCallback(
+  (eventNumber: number, playableCount: number) => {
+    setSelections(prev => ({
+      ...prev,
+      [eventNumber]: playableCount,
+    }));
+  },
+  []
+);
+
 
   if (loading) return <Spinner />;
-
   if (error) {
-    return (
-      <div style={{ color: "red" }}>
-        ❌ {error} {couponType}
-      </div>
-    );
+    return <div style={{ color: "red" }}>❌ {error}</div>;
   }
 
   if (!hasEvents) {
     return (
       <div className="api-warning">
         ⚠️ API connected – no events available yet
-        <p>
-          {couponType?.toUpperCase()} -
-          Betting events are usually published closer to match day.
-          Please check back later.
-        </p>
       </div>
-
     );
   }
 
@@ -46,34 +45,31 @@ export default function Coupon() {
 
   return (
     <section className="tip-card">
-      <p className="text-muted">
-        ✅ API connected – events available from - {couponType?.toUpperCase()}
-      </p>
-
-      {/* Grid Header */}
-      <div className="grid-header">
-        <span></span>
-        <span>1</span>
-        <span>X</span>
-        <span>2</span>
-      </div>
-
-      {/* Grid Rows */}
       {couponEvents.map(event => (
         <div key={event.eventNumber} className="grid-row">
           <div className="match-info">
-            <strong>{event.eventNumber}. {event.description}</strong>
-            <p className="stat-text">Price: {event.odds?.one} / {event.odds?.one} / {event.odds?.two}</p>
-            <p className="stat-text">People: {event.svenskaFolket?.one}% / {event.svenskaFolket?.x}% / {event.svenskaFolket?.two}%</p>
+            <strong>
+              {event.eventNumber}. {event.description}
+            </strong>
+            <p className="stat-text">
+              Price: {event.odds?.one} / {event.odds?.x} / {event.odds?.two}
+            </p>
+            <p className="stat-text">
+              People: {event.svenskaFolket?.one}% /{" "}
+              {event.svenskaFolket?.x}% / {event.svenskaFolket?.two}%
+            </p>
           </div>
-          <input type="number" />
-          <input type="number" />
-          <input type="number" />
+          
+          <ButtonGroup
+            eventNumber={event.eventNumber}
+            isValueBet1={true}
+            isValueBetX={false}
+            isValueBet2={true}
+            onChange={handleSelectionChange}
+          />
+          
         </div>
       ))}
     </section>
-
-
   );
-};
-
+}
