@@ -1,5 +1,19 @@
 import type { CouponRow, MinMaxRule, OneXTwo } from "../types";
 
+// Odds are strings like "7,50"
+export interface OddsOneXTwo {
+  one: string;
+  x: string;
+  two: string;
+}
+
+// Svenska Folket are numbers like 7, 14, 79
+export interface SvenskaFolket {
+  one: number;
+  x: number;
+  two: number;
+}
+
 export function cartesian(args: CouponRow[]): CouponRow[] {
   const result: CouponRow[] = [];
   const max = args.length - 1;
@@ -21,6 +35,31 @@ export function buildRowsFromSelections(
 ): CouponRow[] {
   return Object.values(selections).filter(row => row.length > 0);
 }
+
+export function getValueStrengths(
+  odds?: OddsOneXTwo,
+  betPercents?: SvenskaFolket
+): (number | "X")[] {
+  if (!odds || !betPercents) return ["X", "X", "X"];
+
+  const dodds = [
+    parseFloat(odds.one.replace(",", ".")),
+    parseFloat(odds.x.replace(",", ".")),
+    parseFloat(odds.two.replace(",", "."))
+  ];
+
+  const betPct = [
+    betPercents.one,
+    betPercents.x,
+    betPercents.two
+  ];
+
+  const repaymentRate =
+    1 / (1 / dodds[0] + 1 / dodds[1] + 1 / dodds[2]);
+
+  return dodds.map((d, i) => (repaymentRate / d) * 100 - betPct[i]);
+}
+
 
 
 export function filterRowsByMinMax(

@@ -8,6 +8,7 @@ import ButtonGroup from "./components/ButtonGroup/ButtonGroup";
 import { cartesian, buildRowsFromSelections } from "./utils/couponMath";
 import { formatRowsForSvenskaSpel } from "./utils/svenskaSpelFormatter";
 import { downloadTextFile } from "./utils/fileDownload";
+import { getValueStrengths } from "./utils/couponMath";
 import type { OneXTwo, CouponRow } from "./types";
 
 type CouponType = "europatipset" | "stryktipset";
@@ -84,28 +85,37 @@ export default function Coupon() {
       </div>
 
 
-      {couponEvents.map(event => (
-        <div key={event.eventNumber} className="grid-row">
-          <div className="match-info">
-            <strong>{event.eventNumber}. {event.description}</strong>
-             <p className="stat-text">
-              Odds: {event.odds?.one} / {event.odds?.x} / {event.odds?.two}
-            </p>
-            <p className="stat-text">
-              Sv Folket: {event.svenskaFolket?.one}% /{" "}
-              {event.svenskaFolket?.x}% / {event.svenskaFolket?.two}%
-            </p>
-          </div>
+      {couponEvents.map(event => {
+        // --- Step 1: compute valueStrengths for this event ---
+        const valueStrengths = event.odds
+          ? getValueStrengths(event.odds, event.svenskaFolket)
+          : ["X", "X", "X"]; // fallback if odds are missing
 
-          <ButtonGroup
-            eventNumber={event.eventNumber}
-            isValueBet1={true}
-            isValueBetX={false}
-            isValueBet2={true}
-            onChange={handleSelectionChange}
-          />
-        </div>
-      ))}
+        // --- Step 2: return JSX using calculated strengths ---
+        return (
+          <div key={event.eventNumber} className="grid-row">
+            <div className="match-info">
+              <strong>{event.eventNumber}. {event.description}</strong>
+              <p className="stat-text">
+                Odds: {event.odds?.one} / {event.odds?.x} / {event.odds?.two}
+              </p>
+              <p className="stat-text">
+                Sv Folket: {event.svenskaFolket?.one}% /{" "}
+                {event.svenskaFolket?.x}% / {event.svenskaFolket?.two}%
+              </p>
+            </div>
+
+            <ButtonGroup
+              eventNumber={event.eventNumber}
+              valueStrength1={valueStrengths[0]}
+              valueStrengthX={valueStrengths[1]}
+              valueStrength2={valueStrengths[2]}
+              onChange={handleSelectionChange}
+            />
+          </div>
+        );
+      })}
+
     </section>
   );
 }

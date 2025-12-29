@@ -6,17 +6,17 @@ import type { OneXTwo } from "../../types";
 
 interface ButtonGroupProps {
   eventNumber: number;
-  isValueBet1: boolean;
-  isValueBetX: boolean;
-  isValueBet2: boolean;
+  valueStrength1?: number | string;
+  valueStrengthX?: number | string;
+  valueStrength2?: number | string;
   onChange: (eventNumber: number, selections: OneXTwo[]) => void;
 }
 
 const ButtonGroup = ({
   eventNumber,
-  isValueBet1,
-  isValueBetX,
-  isValueBet2,
+  valueStrength1,
+  valueStrengthX,
+  valueStrength2,
   onChange,
 }: ButtonGroupProps) => {
   const [values, setValues] = React.useState<
@@ -54,17 +54,17 @@ const ButtonGroup = ({
   return (
     <div className="buttonGroup">
       <div className="buttonColumn">
-        <SelectionButton value={home} isValueBet={isValueBet1} onChange={v => updateValue(0, v)} />
+        <SelectionButton value={home} valueStrength={valueStrength1} onChange={v => updateValue(0, v)} />
         <div className="weight">{weights[0] ? `${weights[0]}%` : ""}</div>
       </div>
 
       <div className="buttonColumn">
-        <SelectionButton value={draw} isValueBet={isValueBetX} onChange={v => updateValue(1, v)} />
+        <SelectionButton value={draw} valueStrength={valueStrengthX} onChange={v => updateValue(1, v)} />
         <div className="weight">{weights[1] ? `${weights[1]}%` : ""}</div>
       </div>
 
       <div className="buttonColumn">
-        <SelectionButton value={away} isValueBet={isValueBet2} onChange={v => updateValue(2, v)} />
+        <SelectionButton value={away} valueStrength={valueStrength2} onChange={v => updateValue(2, v)} />
         <div className="weight">{weights[2] ? `${weights[2]}%` : ""}</div>
       </div>
     </div>

@@ -4,7 +4,7 @@ export type SelectionValue = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 interface SelectionButtonProps {
   value: SelectionValue;
-  isValueBet: boolean;
+  valueStrength?: number | string;
   onChange: (nextValue: SelectionValue) => void;
 }
 
@@ -20,7 +20,7 @@ const VALUE_MAP = [
 
 const SelectionButton = ({
   value,
-  isValueBet,
+  valueStrength,
   onChange,
 }: SelectionButtonProps) => {
   const nextValue: SelectionValue = value === 0 ? 6 : (value - 1) as SelectionValue;
@@ -36,10 +36,15 @@ const SelectionButton = ({
       <span
         className="valueBetIndicator"
         style={{
-          backgroundColor: isValueBet ? 'rgb(35, 211, 250)' : color,
+          backgroundColor: valueStrength ? 'rgb(35, 211, 250)' : color,
         }}
       />
       {text}
+      <span className="valueStrengthText">
+        {typeof valueStrength === "number"
+          ? `${valueStrength > 0 ? "+" : ""}${valueStrength.toFixed(2)}`
+          : valueStrength}
+      </span>
     </button>
   );
 };
