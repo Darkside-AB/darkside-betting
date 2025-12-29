@@ -1,5 +1,19 @@
 import type { CouponRow, MinMaxRule, OneXTwo } from "../types";
 
+// Odds are strings like "7,50"
+export interface OddsOneXTwo {
+  one: string;
+  x: string;
+  two: string;
+}
+
+// Svenska Folket are numbers like 7, 14, 79
+export interface SvenskaFolket {
+  one: number;
+  x: number;
+  two: number;
+}
+
 export function cartesian(args: CouponRow[]): CouponRow[] {
   const result: CouponRow[] = [];
   const max = args.length - 1;
@@ -16,21 +30,37 @@ export function cartesian(args: CouponRow[]): CouponRow[] {
   return result;
 }
 
-export function buildRowsFromLocalStorage(eventsCount = 13): CouponRow[] {
-  const rows: CouponRow[] = [];
-
-  for (let i = 1; i <= eventsCount; i++) {
-    const row: CouponRow = [];
-    for (let j = 1; j <= 3; j++) {
-      if (Number(localStorage.getItem(`button ${i}${j}`)) > 0) {
-        row.push(j as OneXTwo);
-      }
-    }
-    if (row.length > 0) rows.push(row);
-  }
-
-  return rows;
+export function buildRowsFromSelections(
+  selections: Record<number, OneXTwo[]>
+): CouponRow[] {
+  return Object.values(selections).filter(row => row.length > 0);
 }
+
+export function getValueStrengths(
+  odds?: OddsOneXTwo,
+  betPercents?: SvenskaFolket
+): (number | "X")[] {
+  if (!odds || !betPercents) return ["X", "X", "X"];
+
+  const dodds = [
+    parseFloat(odds.one.replace(",", ".")),
+    parseFloat(odds.x.replace(",", ".")),
+    parseFloat(odds.two.replace(",", "."))
+  ];
+
+  const betPct = [
+    betPercents.one,
+    betPercents.x,
+    betPercents.two
+  ];
+
+  const repaymentRate =
+    1 / (1 / dodds[0] + 1 / dodds[1] + 1 / dodds[2]);
+
+  return dodds.map((d, i) => (repaymentRate / d) * 100 - betPct[i]);
+}
+
+
 
 export function filterRowsByMinMax(
   rows: CouponRow[],

@@ -164,6 +164,41 @@ nav a:hover {
   font-size: 0.9rem;
 }
 
+.coupon-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+
+  padding: 12px 16px;
+  margin-bottom: 16px;
+
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #fff;
+
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-item .label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #cbd5f5;
+}
+
+.summary-item .value {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+
 /* ================== SECTION TITLES ================== */
 .section-title {
   margin: 4rem 0 1.5rem;
@@ -217,7 +252,6 @@ nav a:hover {
   grid-template-columns: 1fr repeat(3, 60px);
   gap: 0.5rem;
   align-items: start;
-  margin-bottom: 0.8rem;
 }
 
 .match-info {
@@ -279,8 +313,17 @@ footer > div {
 }
 
 @media (max-width: 600px) {
-  .grid-row {
-    grid-template-columns: 1fr repeat(3, 1fr);
+  .coupon-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .summary-item .value {
+    font-size: 20px;
+  }
+
+  .grid-row{
+    grid-template-columns: 1fr repeat(3, 45px);
   }
 
   .grid-row input {
