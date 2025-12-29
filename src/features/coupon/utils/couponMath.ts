@@ -16,21 +16,12 @@ export function cartesian(args: CouponRow[]): CouponRow[] {
   return result;
 }
 
-export function buildRowsFromLocalStorage(eventsCount = 13): CouponRow[] {
-  const rows: CouponRow[] = [];
-
-  for (let i = 1; i <= eventsCount; i++) {
-    const row: CouponRow = [];
-    for (let j = 1; j <= 3; j++) {
-      if (Number(localStorage.getItem(`button ${i}${j}`)) > 0) {
-        row.push(j as OneXTwo);
-      }
-    }
-    if (row.length > 0) rows.push(row);
-  }
-
-  return rows;
+export function buildRowsFromSelections(
+  selections: Record<number, OneXTwo[]>
+): CouponRow[] {
+  return Object.values(selections).filter(row => row.length > 0);
 }
+
 
 export function filterRowsByMinMax(
   rows: CouponRow[],

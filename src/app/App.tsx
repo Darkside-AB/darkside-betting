@@ -12,8 +12,9 @@ function App() {
       <main className="container">
         <section className="hero container">
           <div>
-            <h1>Welcome to Darkside</h1>
-            <p>Play with balls, not loose them</p>
+            <h1>Välkommen till Tipsfabriken</h1>
+            <p>Ett verktyg för att generera rader mot sannolikhet och att sätta 13 rätt hos Svenska Spel</p>
+            <p>“Not affiliated with Svenska Spel yet”</p>
             <Link to="/darkside-betting/stryktipset">
               <button className="btn btn-stryktipset">Stryktipset</button>
             </Link>
