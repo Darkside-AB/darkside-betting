@@ -33,7 +33,8 @@ const SelectionButton = ({
       style={{ backgroundColor: color }}
       onClick={() => onChange(nextValue)}
     >
-     
+      {text}
+
       <span className="valueStrengthText">
         {typeof valueStrength === "number"
           ? `${valueStrength > 0 ? "+" : ""}${valueStrength.toFixed(2)}`
