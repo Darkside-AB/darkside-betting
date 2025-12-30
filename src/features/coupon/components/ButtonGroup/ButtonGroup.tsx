@@ -4,13 +4,22 @@ import SelectionButton from "../SelectionButton/SelectionButton";
 import type { SelectionValue } from "../SelectionButton/SelectionButton";
 import type { OneXTwo } from "../../types";
 
+/** ----- Types ----- */
+
+export type ButtonGroupChange = {
+  selections: OneXTwo[];
+  weights: [number, number, number];
+};
+
 interface ButtonGroupProps {
   eventNumber: number;
   valueStrength1?: number | string;
   valueStrengthX?: number | string;
   valueStrength2?: number | string;
-  onChange: (eventNumber: number, selections: OneXTwo[]) => void;
+  onChange: (eventNumber: number, data: ButtonGroupChange) => void;
 }
+
+/** ----- Component ----- */
 
 const ButtonGroup = ({
   eventNumber,
@@ -25,7 +34,8 @@ const ButtonGroup = ({
 
   const [home, draw, away] = values;
 
-  const selected = React.useMemo<OneXTwo[]>(() => {
+   /** ----- Selected 1 / X / 2 ----- */
+  const selections = React.useMemo<OneXTwo[]>(() => {
     const s: OneXTwo[] = [];
     if (home > 0) s.push(1);
     if (draw > 0) s.push(2);
@@ -33,10 +43,24 @@ const ButtonGroup = ({
     return s;
   }, [home, draw, away]);
 
-  React.useEffect(() => {
-    onChange(eventNumber, selected);
-  }, [eventNumber, selected, onChange]);
+  /** ----- Weight distribution ----- */
+  const weights = React.useMemo<[number, number, number]>(() => {
+  const total = values.reduce<number>((sum, v) => sum + v, 0);
 
+  if (total === 0) return [0, 0, 0];
+
+  return values.map(v =>
+    Math.round((v / total) * 100)
+  ) as [number, number, number];
+}, [values]);
+
+
+  /** ----- Notify parent ----- */
+  React.useEffect(() => {
+    onChange(eventNumber, { selections, weights });
+  }, [eventNumber, selections, weights, onChange]);
+
+  /** ----- Update value ----- */
   const updateValue = (index: 0 | 1 | 2, value: SelectionValue) => {
     setValues(prev => {
       const next = [...prev] as typeof prev;
@@ -45,11 +69,7 @@ const ButtonGroup = ({
     });
   };
 
-  const weights = React.useMemo(() => {
-    const total = values.reduce<number>((sum, v) => sum + v, 0);
-    if (total === 0) return [0, 0, 0];
-    return values.map(v => Math.round((v / total) * 100));
-  }, [values]);
+  /** ----- Render ----- */
 
   return (
     <div className="buttonGroup">

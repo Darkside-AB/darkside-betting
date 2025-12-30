@@ -1,14 +1,22 @@
+import { NavLink } from "react-router-dom";
+
 const Header = () => {
   return (
-    <header>
+    <header className="header">
       <div className="nav">
         <div className="logo">
           Tips<span>Fabriken</span>
         </div>
-        <nav>
-          <a href="#">Guide</a>
-          <a href="#">Stats</a>
-          <a href="#">Login</a>
+
+        <nav className="nav-links">
+          <NavLink to="/darkside-betting/stryktipset">
+            Stryktipset
+          </NavLink>
+
+          <NavLink to="/darkside-betting/europatipset">
+            Europatipset
+          </NavLink>
+
         </nav>
       </div>
     </header>
