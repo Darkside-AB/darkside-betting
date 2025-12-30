@@ -9,7 +9,9 @@ import { cartesian, buildRowsFromSelections } from "./utils/couponMath";
 import { formatRowsForSvenskaSpel } from "./utils/svenskaSpelFormatter";
 import { downloadTextFile } from "./utils/fileDownload";
 import { getValueStrengths } from "./utils/couponMath";
+import { reduceRowsByWeight } from "./utils/reduceRows";
 import type { OneXTwo, CouponRow } from "./types";
+import type { ButtonGroupChange } from "./components/ButtonGroup/ButtonGroup";
 
 type CouponType = "europatipset" | "stryktipset";
 
@@ -21,15 +23,27 @@ export default function Coupon() {
     Record<number, OneXTwo[]>
   >({});
 
+  const [weightsByEvent, setWeightsByEvent] = React.useState<
+    Record<number, [number, number, number]>
+  >({});
+
+  const [maxRows, setMaxRows] = React.useState(0);
+
   const handleSelectionChange = React.useCallback(
-    (eventNumber: number, selectionsForEvent: OneXTwo[]) => {
+    (eventNumber: number, data: ButtonGroupChange) => {
       setSelections(prev => ({
         ...prev,
-        [eventNumber]: selectionsForEvent,
+        [eventNumber]: data.selections,
+      }));
+
+      setWeightsByEvent(prev => ({
+        ...prev,
+        [eventNumber]: data.weights,
       }));
     },
     []
   );
+
 
   const baseRows: CouponRow[] = React.useMemo(() => {
     return buildRowsFromSelections(selections);
@@ -44,10 +58,30 @@ export default function Coupon() {
     return <div style={{ color: "red" }}>Invalid coupon type</div>;
   }
 
-  const handleExport = () => {
-    if (allRows.length === 0) return;
+  const reducedRows = React.useMemo(() => {
+    if (!allRows.length) return [];
 
-    const content = formatRowsForSvenskaSpel(allRows, couponType);
+    return reduceRowsByWeight(
+      allRows,
+      weightsByEvent,
+      maxRows
+    );
+  }, [allRows, weightsByEvent, maxRows]);
+
+
+  React.useEffect(() => {
+    console.log("All rows:", allRows.length);
+    console.log("Reduced rows:", reducedRows.length);
+    console.log("Top 5 rows:", reducedRows.slice(0, 5));
+  }, [allRows, reducedRows]);
+
+  const handleExport = () => {
+    if (reducedRows.length === 0) return;
+
+    const content = formatRowsForSvenskaSpel(
+      reducedRows,
+      couponType
+    );
 
     downloadTextFile(
       `${couponType}-rows.txt`,
@@ -70,6 +104,24 @@ export default function Coupon() {
         </div>
 
         <div className="summary-item">
+          <span className="label">Playing rows</span>
+          <span className="value">{reducedRows.length}</span>
+        </div>
+
+        <div className="summary-item summary-slider">
+          <span className="label">System size</span>
+
+          <input
+            type="range"
+            min={1}
+            max={allRows.length || 1}
+            step={1}
+            value={maxRows}
+            onChange={e => setMaxRows(Number(e.target.value))}
+          />
+        </div>
+
+        <div className="summary-item">
           <span className="label">System</span>
           <span className="value">
             {couponType === "stryktipset" ? "Stryktipset" : "Europatipset"}
@@ -77,7 +129,7 @@ export default function Coupon() {
         </div>
         <button
           onClick={handleExport}
-          disabled={allRows.length === 0}
+          disabled={reducedRows.length === 0}
         >
           Export rows
         </button>

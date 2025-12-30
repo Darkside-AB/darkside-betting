@@ -31,50 +31,70 @@ body {
 }
 
 /* ================== HEADER ================== */
-header {
-  background: rgba(2, 6, 23, 0.8);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  border-bottom: 1px solid #1f2937;
+.header {
+  background: #0e1116;
+  border-bottom: 1px solid #1c222b;
 }
-
 .nav {
-  max-width: 1200px;
-  margin: auto;
-  padding: 1rem 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 20px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .logo {
+  font-size: 1.3rem;
   font-weight: 700;
-  font-size: 1.2rem;
-  letter-spacing: 0.5px;
+  color: #ffffff;
 }
 
 .logo span {
-  color: var(--accent);
+  color: #23d3fa;
 }
 
-nav a {
-  color: var(--text-muted);
-  margin-left: 1.5rem;
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  position: relative;
   text-decoration: none;
-  font-weight: 500;
+  color: #9aa4b2;
+  font-size: 0.95rem;
+  padding: 6px 0;
+  transition: color 0.2s ease;
 }
 
-nav a:hover {
-  color: var(--text);
+.nav-links a:hover {
+  color: #ffffff;
+}
+
+/* Active route styling */
+.nav-links a.active {
+  color: #23d3fa;
+  font-weight: 600;
+}
+
+/* Underline animation */
+.nav-links a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background: #23d3fa;
+  border-radius: 2px;
 }
 
 /* ================== CONTAINER ================== */
 .container {
   max-width: 1200px;
   margin: auto;
-  padding: 1rem 1rem 2rem;
 }
 
 /* ================== HERO ================== */
@@ -178,6 +198,38 @@ nav a:hover {
 
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.summary-slider {
+  min-width: 220px;
+}
+
+.summary-slider input[type="range"] {
+  width: 100%;
+  margin-top: 8px;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #22c55e, #eab308, #ef4444);
+  outline: none;
+  cursor: pointer;
+}
+
+.summary-slider input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #22c55e;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.slider-value {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 4px;
+  color: #e5e7eb;
 }
 
 .summary-item {
