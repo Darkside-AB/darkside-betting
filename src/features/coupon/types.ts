@@ -36,6 +36,7 @@ export interface MinMaxRule {
 
 export interface Draw {
   currentNetSale: string;
+  regCloseDescription: string;
   drawEvents: DrawEvent[];
 }
 
