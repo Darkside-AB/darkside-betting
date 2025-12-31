@@ -17,7 +17,7 @@ type CouponType = "europatipset" | "stryktipset";
 
 export default function Coupon() {
   const { couponType } = useParams<{ couponType: CouponType }>();
-  const { events, loading, hasEvents, error } = useCouponLogic(couponType);
+  const { regCloseDescription, currentNetSale, events, loading, hasEvents, error } = useCouponLogic(couponType);
 
   const [selections, setSelections] = React.useState<
     Record<number, OneXTwo[]>
@@ -121,12 +121,18 @@ export default function Coupon() {
           />
         </div>
 
-        <div className="summary-item">
-          <span className="label">System</span>
-          <span className="value">
-            {couponType === "stryktipset" ? "Stryktipset" : "Europatipset"}
-          </span>
+        <div className="summary-item summary-item--compact">
+          <div className="summary-item__value summary-item__value--muted">
+            {couponType === "stryktipset" ? "Stryktipset " : "Europatipset"}
+          </div>
+          <div className="summary-item__value summary-item__value--muted">
+            {regCloseDescription?.split(",")[1]?.trim().split(" ").slice(1).join(" ") ?? ""}
+          </div>
+          <div className="summary-item__value summary-item__value--muted">
+            Omsättning: {currentNetSale}
+          </div>
         </div>
+
         <button
           onClick={handleExport}
           disabled={reducedRows.length === 0}

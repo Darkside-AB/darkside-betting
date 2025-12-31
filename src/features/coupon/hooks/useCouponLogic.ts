@@ -9,6 +9,9 @@ export function useCouponLogic(couponType: CouponType) {
   const [loading, setLoading] = useState(true);
   const [hasEvents, setHasEvents] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentNetSale, setCurrentNetSale] = useState<string | null>(null);
+  const [regCloseDescription, setregCloseDescription] = useState<string | null>(null);
+  
 
   useEffect(() => {
     if (!couponType) return;
@@ -24,12 +27,17 @@ export function useCouponLogic(couponType: CouponType) {
             ? await couponApi.getStryktipsetDraws()
             : await couponApi.getEuropatipsetDraws();
 
-            console.log("API response:", res);
+        console.log("API response:", res);
 
-        const drawEvents =
-          res.data.draws?.[0]?.drawEvents ?? [];
+        const draw = res.data.draws?.[0];
+
+        const drawEvents = draw?.drawEvents ?? [];
+        const netSale = draw?.currentNetSale ?? null;
+        const closeDescription = draw?.regCloseDescription ?? null;
 
         setEvents(drawEvents);
+        setCurrentNetSale(netSale);
+        setregCloseDescription(closeDescription);
         setHasEvents(drawEvents.length > 0);
       } catch (err) {
         console.error(err);
@@ -43,6 +51,8 @@ export function useCouponLogic(couponType: CouponType) {
   }, [couponType]);
 
   return {
+    regCloseDescription,
+    currentNetSale,
     events,
     loading,
     hasEvents,

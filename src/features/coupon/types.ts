@@ -34,10 +34,14 @@ export interface MinMaxRule {
   max: number;
 }
 
+export interface Draw {
+  currentNetSale: string;
+  regCloseDescription: string;
+  drawEvents: DrawEvent[];
+}
+
 export interface DrawsResponse {
-  draws: {
-    drawEvents: DrawEvent[];
-  }[];
+  draws: Draw[];
 }
 
 export type EuropatipsetDrawsResponse = DrawsResponse;

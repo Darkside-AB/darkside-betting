@@ -250,6 +250,17 @@ body {
   font-weight: 700;
 }
 
+.summary-item--compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem; /* space between rows */
+  font-size: 0.85rem;
+}
+
+.summary-item--compact .summary-item__value {
+  font-weight: 400;
+  color: #888;
+}
 
 /* ================== SECTION TITLES ================== */
 .section-title {
