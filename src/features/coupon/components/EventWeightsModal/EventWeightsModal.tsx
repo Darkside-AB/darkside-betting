@@ -1,4 +1,3 @@
-import React from "react";
 import "./EventWeightsModal.css";
 
 interface EventWeightsModalProps {
