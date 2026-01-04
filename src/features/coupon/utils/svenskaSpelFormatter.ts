@@ -19,8 +19,8 @@ function getHeader(couponType: CouponType): string {
     : "Stryktipset";
 }
 
-function getRowPrefix(couponType: CouponType): "E" | "S" {
-  return couponType === "europatipset" ? "E" : "S";
+function getRowPrefix(couponType: CouponType): "E" | "E" {
+  return couponType === "europatipset" ? "E" : "E";
 }
 
 export function formatRowsForSvenskaSpel(

@@ -1,4 +1,6 @@
 .selectionButton {
+  position: relative;
+  overflow: hidden;
   display: flex;              /* make button a flex container */
   flex-direction: column;     /* column if you want indicator on top, text below */
   align-items: center;        /* horizontal centering */
@@ -25,6 +27,33 @@
   margin-left: 4px;
   opacity: 0.85;
   white-space: nowrap;
+}
+
+/* Corner triangle */
+.valueCorner {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 0;
+  height: 0;
+
+  border-top: 24px solid #b7e4c7; /* light green */
+  border-left: 24px solid transparent;
+}
+
+/* V text */
+.valueCornerText {
+  position: absolute;
+  top: -18px;   /* moved DOWN */
+  right: 4px;   /* moved LEFT */
+
+  font-size: 9px;
+  font-weight: 600;
+  color: #1b5e20; /* darker green for contrast */
+
+  line-height: 1;
+  pointer-events: none;
 }
 
 .valueBetIndicator {
