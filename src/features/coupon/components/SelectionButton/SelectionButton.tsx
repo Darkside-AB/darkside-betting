@@ -9,13 +9,13 @@ interface SelectionButtonProps {
 }
 
 const VALUE_MAP = [
-  { color: 'grey', text: '-' },
-  { color: '#990000', text: 'F' },
-  { color: '#ff8c5a', text: 'E' },
-  { color: '#ffb234', text: 'D' },
-  { color: '#ffd934', text: 'C' },
-  { color: '#add633', text: 'B' },
-  { color: 'green', text: 'A' },
+  { color: 'rgba(0, 102, 204, 0.15)', text: '-' },
+  { color: 'rgba(0, 102, 204, 0.25)', text: 'F' },
+  { color: 'rgba(0, 102, 204, 0.35)', text: 'E' },
+  { color: 'rgba(0, 102, 204, 0.45)', text: 'D' },
+  { color: 'rgba(0, 102, 204, 0.6)',  text: 'C' },
+  { color: 'rgba(0, 102, 204, 0.75)', text: 'B' },
+  { color: 'rgba(0, 102, 204, 1)',    text: 'A' },
 ] as const;
 
 const SelectionButton = ({
@@ -34,6 +34,13 @@ const SelectionButton = ({
       onClick={() => onChange(nextValue)}
     >
       {text}
+
+      
+    {typeof valueStrength === "number" && valueStrength > 0 && (
+  <span className="valueCorner">
+    <span className="valueCornerText"></span>
+  </span>
+)}
 
       <span className="valueStrengthText">
         {typeof valueStrength === "number"

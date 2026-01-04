@@ -14,6 +14,11 @@ import { reduceRowsEvenDistribution } from "./utils/reduceRowsEvenDistribution";
 import { calculateEventWeights } from "./utils/calculateEventWeights";
 import type { OneXTwo, CouponRow } from "./types";
 import type { ButtonGroupChange } from "./components/ButtonGroup/ButtonGroup";
+import type { CouponStorage } from "./types/couponStorage";
+import {
+  loadCouponState,
+  saveCouponState,
+} from "./utils/couponStorage";
 
 type CouponType = "europatipset" | "stryktipset";
 
@@ -27,11 +32,35 @@ export default function Coupon() {
     Record<number, OneXTwo[]>
   >({});
 
+
   const [weightsByEvent, setWeightsByEvent] = React.useState<
     Record<number, [number, number, number]>
   >({});
 
   const [maxRows, setMaxRows] = React.useState(0);
+
+  if (!couponType) {
+    return <div style={{ color: "red" }}>Invalid coupon type</div>;
+  }
+
+  React.useEffect(() => {
+    const stored = loadCouponState(couponType);
+
+    if (!stored) return;
+
+    setSelections(stored.selections ?? {});
+    setWeightsByEvent(stored.weightsByEvent ?? {});
+  }, [couponType]);
+
+
+  React.useEffect(() => {
+    const state: CouponStorage = {
+      selections,
+      weightsByEvent,
+    };
+
+    saveCouponState(couponType, state);
+  }, [couponType, selections, weightsByEvent]);
 
   const handleSelectionChange = React.useCallback(
     (eventNumber: number, data: ButtonGroupChange) => {
@@ -57,10 +86,6 @@ export default function Coupon() {
     if (baseRows.length === 0) return [];
     return cartesian(baseRows);
   }, [baseRows]);
-
-  if (!couponType) {
-    return <div style={{ color: "red" }}>Invalid coupon type</div>;
-  }
 
   React.useEffect(() => {
     setReducedRows([]);
@@ -124,7 +149,27 @@ export default function Coupon() {
 
           <div className="summary-item">
             <span className="label">Playing rows</span>
-            <span className="value">{maxRows}</span>
+            <input
+              type="number"
+              min={1}
+              max={allRows.length || 1}
+              value={maxRows || ""}
+              onChange={e => {
+                const val = e.target.value;
+                // Allow empty string while typing
+                if (val === "") {
+                  setMaxRows(0); // shows empty
+                  return;
+                }
+                setMaxRows(Number(val));
+              }}
+              onBlur={e => {
+                // Clamp on blur
+                const val = Number(e.target.value) || 1;
+                setMaxRows(Math.min(Math.max(val, 1), allRows.length || 1));
+              }}
+              className="max-rows-inline"
+            />
           </div>
 
           <div className="summary-item summary-slider">
