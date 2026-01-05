@@ -14,13 +14,14 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
 
+          {/* Default route */}
           <Route
-            path="/darkside-betting"
-            element={<Navigate to="/darkside-betting/europatipset" />}
+            path="/"
+            element={<Navigate to="/europatipset" replace />}
           />
 
           <Route
-            path="/darkside-betting/:couponType"
+            path="/:couponType"
             element={
               <ProtectedRoute>
                 <Coupon />

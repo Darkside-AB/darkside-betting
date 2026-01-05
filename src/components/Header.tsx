@@ -9,11 +9,11 @@ const Header = () => {
         </div>
 
         <nav className="nav-links">
-          <NavLink to="/darkside-betting/stryktipset">
+          <NavLink to="/stryktipset">
             Stryktipset
           </NavLink>
 
-          <NavLink to="/darkside-betting/europatipset">
+          <NavLink to="/europatipset">
             Europatipset
           </NavLink>
 
