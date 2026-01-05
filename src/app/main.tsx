@@ -4,6 +4,13 @@ import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
 import "./index.css";
 import App from "./App";
 
+declare const __COMMIT_HASH__: string;
+
+console.log(
+  `%cDarkside Betting`,
+  "color: purple; font-weight: bold;",
+  `commit: ${__COMMIT_HASH__}`
+);
 // Wrap the app with BrowserRouter
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
