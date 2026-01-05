@@ -7,7 +7,7 @@ import App from "./App";
 // Wrap the app with BrowserRouter
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter> {/* Ensure the app is wrapped in BrowserRouter */}
+    <BrowserRouter basename="/darkside-betting">
       <App />
     </BrowserRouter>
   </StrictMode>
