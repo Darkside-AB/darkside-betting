@@ -7,7 +7,7 @@ const buildTime = new Date().toISOString();
 
 export default defineConfig({
   plugins: [react()],
-  base: "/darkside-betting/",
+  base: "/",
   define: {
     __COMMIT_HASH__: JSON.stringify(commitHash),
     __BUILD_TIME__: JSON.stringify(buildTime),

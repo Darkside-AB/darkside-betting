@@ -14,7 +14,7 @@ const Login = () => {
 
     const success = login(username, password);
     if (success) {
-      navigate("/darkside-betting/europatipset");
+      navigate("/stryktipset");
     } else {
       setError("Wrong username or password");
     }
