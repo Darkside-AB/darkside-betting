@@ -16,7 +16,7 @@ console.log(
 // Wrap the app with BrowserRouter
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter basename="/darkside-betting">
+    <BrowserRouter >
       <App />
     </BrowserRouter>
   </StrictMode>
