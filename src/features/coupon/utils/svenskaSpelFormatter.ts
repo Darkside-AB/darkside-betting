@@ -1,4 +1,4 @@
-import type { CouponRow, OneXTwo } from "../types";
+import type { CouponRow, OneXTwo } from "../types/couponDataTypes";
 
 export type CouponType = "europatipset" | "stryktipset";
 

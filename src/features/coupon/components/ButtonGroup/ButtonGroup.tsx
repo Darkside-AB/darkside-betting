@@ -1,28 +1,28 @@
 import React from "react";
 import "./ButtonGroup.css";
 import SelectionButton from "../SelectionButton/SelectionButton";
-import type { SelectionValue } from "../SelectionButton/SelectionButton";
-import type { OneXTwo } from "../../types";
+import type { SelectionValue } from "../../types/couponDataTypes";
 
 /** ----- Types ----- */
 
-export type ButtonGroupChange = {
-  selections: OneXTwo[];
-  weights: [number, number, number];
-};
-
 interface ButtonGroupProps {
   eventNumber: number;
+  initialValues?: [SelectionValue, SelectionValue, SelectionValue];
   valueStrength1?: number | string;
   valueStrengthX?: number | string;
   valueStrength2?: number | string;
-  onChange: (eventNumber: number, data: ButtonGroupChange) => void;
+  onChange: (
+    eventNumber: number,
+    values: [SelectionValue, SelectionValue, SelectionValue]
+  ) => void;
 }
+
 
 /** ----- Component ----- */
 
 const ButtonGroup = ({
   eventNumber,
+  initialValues,
   valueStrength1,
   valueStrengthX,
   valueStrength2,
@@ -30,35 +30,34 @@ const ButtonGroup = ({
 }: ButtonGroupProps) => {
   const [values, setValues] = React.useState<
     [SelectionValue, SelectionValue, SelectionValue]
-  >([0, 0, 0]);
+  >(initialValues ?? [0, 0, 0]);
+
+  React.useEffect(() => {
+    if (initialValues) {
+      setValues(initialValues);
+    }
+  }, [initialValues]);
+
 
   const [home, draw, away] = values;
 
-   /** ----- Selected 1 / X / 2 ----- */
-  const selections = React.useMemo<OneXTwo[]>(() => {
-    const s: OneXTwo[] = [];
-    if (home > 0) s.push(1);
-    if (draw > 0) s.push(2);
-    if (away > 0) s.push(3);
-    return s;
-  }, [home, draw, away]);
-
   /** ----- Weight distribution ----- */
   const weights = React.useMemo<[number, number, number]>(() => {
-  const total = values.reduce<number>((sum, v) => sum + v, 0);
+    const total = values.reduce<number>((sum, v) => sum + v, 0);
 
-  if (total === 0) return [0, 0, 0];
+    if (total === 0) return [0, 0, 0];
 
-  return values.map(v =>
-    Math.round((v / total) * 100)
-  ) as [number, number, number];
-}, [values]);
+    return values.map(v =>
+      Math.round((v / total) * 100)
+    ) as [number, number, number];
+  }, [values]);
 
 
   /** ----- Notify parent ----- */
   React.useEffect(() => {
-    onChange(eventNumber, { selections, weights });
-  }, [eventNumber, selections, weights, onChange]);
+    onChange(eventNumber, values);
+  }, [eventNumber, values, onChange]);
+
 
   /** ----- Update value ----- */
   const updateValue = (index: 0 | 1 | 2, value: SelectionValue) => {

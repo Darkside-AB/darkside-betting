@@ -1,4 +1,4 @@
-import type { CouponRow, MinMaxRule, OneXTwo } from "../types";
+import type { CouponRow, MinMaxRule, OneXTwo } from "../types/couponDataTypes";
 
 // Odds are strings like "7,50"
 export interface OddsOneXTwo {
