@@ -15,7 +15,6 @@ import { calculateEventWeights } from "./utils/calculateEventWeights";
 import type { SelectionValue, OneXTwo, CouponRow } from "./types/couponDataTypes";
 import { calculateWeightsByEvent } from "./utils/calculateWeightsByEvent";
 import { deriveSelections } from "./utils/deriveSelections";
-import type { CouponStorage } from "./types/couponStorage";
 import {
   loadCouponState,
   saveCouponState,
