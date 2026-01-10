@@ -27,7 +27,7 @@ const SelectionButton = ({
   onChange,
 }: SelectionButtonProps) => {
   const nextValue: SelectionValue = value === 0 ? 6 : (value - 1) as SelectionValue;
-  const { color, text } = VALUE_MAP[value];
+  const { color } = VALUE_MAP[value];
 
   const buttonText =
     displayMode === 'grade'
