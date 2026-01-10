@@ -21,6 +21,7 @@ import {
 } from "./utils/couponStorage";
 
 type CouponType = "europatipset" | "stryktipset";
+type DisplayMode = 'grade' | 'weight' | 'both';
 
 export default function Coupon() {
   const { couponType } = useParams<{ couponType: CouponType }>();
@@ -28,35 +29,36 @@ export default function Coupon() {
   const [showWeights, setShowWeights] = React.useState(false);
   const [reducedRows, setReducedRows] = React.useState<OneXTwo[][]>([]);
   const [maxRows, setMaxRows] = React.useState(0);
+  const [displayMode, setDisplayMode] = React.useState<DisplayMode>('grade');
 
- 
+
 
   if (!couponType) {
     return <div style={{ color: "red" }}>Invalid coupon type</div>;
   }
 
- const hasHydratedRef = React.useRef(false);
+  const hasHydratedRef = React.useRef(false);
 
-const [valuesByEvent, setValuesByEvent] = React.useState<
-  Record<number, [SelectionValue, SelectionValue, SelectionValue]>
->(() => loadCouponState(couponType)?.valuesByEvent ?? {});
+  const [valuesByEvent, setValuesByEvent] = React.useState<
+    Record<number, [SelectionValue, SelectionValue, SelectionValue]>
+  >(() => loadCouponState(couponType)?.valuesByEvent ?? {});
 
-// 🔁 Reload when coupon changes
-React.useEffect(() => {
-  const stored = loadCouponState(couponType);
-  setValuesByEvent(stored?.valuesByEvent ?? {});
-  hasHydratedRef.current = false;
-}, [couponType]);
+  // 🔁 Reload when coupon changes
+  React.useEffect(() => {
+    const stored = loadCouponState(couponType);
+    setValuesByEvent(stored?.valuesByEvent ?? {});
+    hasHydratedRef.current = false;
+  }, [couponType]);
 
-// 💾 Save after hydration
-React.useEffect(() => {
-  if (!hasHydratedRef.current) {
-    hasHydratedRef.current = true;
-    return;
-  }
+  // 💾 Save after hydration
+  React.useEffect(() => {
+    if (!hasHydratedRef.current) {
+      hasHydratedRef.current = true;
+      return;
+    }
 
-  saveCouponState(couponType, { valuesByEvent });
-}, [couponType, valuesByEvent]);
+    saveCouponState(couponType, { valuesByEvent });
+  }, [couponType, valuesByEvent]);
 
 
 
@@ -151,6 +153,8 @@ React.useEffect(() => {
   return (
     <>
       <section className="tip-card">
+
+        {/* ================= SUMMARY ================= */}
         <div className="coupon-summary">
           <div className="summary-item">
             <span className="label">Total rows</span>
@@ -166,15 +170,13 @@ React.useEffect(() => {
               value={maxRows || ""}
               onChange={e => {
                 const val = e.target.value;
-                // Allow empty string while typing
                 if (val === "") {
-                  setMaxRows(0); // shows empty
+                  setMaxRows(0);
                   return;
                 }
                 setMaxRows(Number(val));
               }}
               onBlur={e => {
-                // Clamp on blur
                 const val = Number(e.target.value) || 1;
                 setMaxRows(Math.min(Math.max(val, 1), allRows.length || 1));
               }}
@@ -184,7 +186,6 @@ React.useEffect(() => {
 
           <div className="summary-item summary-slider">
             <span className="label">System size</span>
-
             <input
               type="range"
               min={1}
@@ -206,6 +207,7 @@ React.useEffect(() => {
               Omsättning: {currentNetSale}
             </div>
           </div>
+
           <button
             onClick={handleOpenWeights}
             disabled={allRows.length === 0}
@@ -213,28 +215,53 @@ React.useEffect(() => {
             View system weights
           </button>
 
-
           <button
             onClick={handleExport}
             disabled={allRows.length === 0}
           >
             Export rows
           </button>
+        </div>
 
+        {/* ================= DISPLAY TOGGLE ================= */}
+        <div className="coupon-display-toggle-container">
+          {/* Keep buttons inline */}
+          <div className="coupon-display-toggle">
+            <button
+              className={displayMode === 'grade' ? 'active' : ''}
+              onClick={() => setDisplayMode('grade')}
+            >
+              A–F
+            </button>
+            <button
+              className={displayMode === 'weight' ? 'active' : ''}
+              onClick={() => setDisplayMode('weight')}
+            >
+              %
+            </button>
+          </div>
+
+          {/* Legend separate below */}
+          <div className="triangle-legend">
+            <span className="legend-triangle"></span>
+            <span className="legend-text">Underbetted → more value</span>
+          </div>
         </div>
 
 
+
+        {/* ================= GRID ROWS ================= */}
         {couponEvents.map(event => {
-          // --- Step 1: compute valueStrengths for this event ---
           const valueStrengths = event.odds
             ? getValueStrengths(event.odds, event.svenskaFolket)
-            : ["X", "X", "X"]; // fallback if odds are missing
+            : ["X", "X", "X"];
 
-          // --- Step 2: return JSX using calculated strengths ---
           return (
             <div key={event.eventNumber} className="grid-row">
               <div className="match-info">
-                <strong>{event.eventNumber}. {event.description}</strong>
+                <strong>
+                  {event.eventNumber}. {event.description}
+                </strong>
                 <p className="stat-text">
                   Odds: {event.odds?.one} / {event.odds?.x} / {event.odds?.two}
                 </p>
@@ -250,13 +277,14 @@ React.useEffect(() => {
                 valueStrength1={valueStrengths[0]}
                 valueStrengthX={valueStrengths[1]}
                 valueStrength2={valueStrengths[2]}
+                displayMode={displayMode}
                 onChange={handleButtonGroupChange}
               />
             </div>
           );
         })}
-
       </section>
+
       <EventWeightsModal
         isOpen={showWeights}
         onClose={() => setShowWeights(false)}
@@ -264,4 +292,5 @@ React.useEffect(() => {
       />
     </>
   );
+
 }
