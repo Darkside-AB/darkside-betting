@@ -1,5 +1,5 @@
-import type { DrawEvent } from "../types";
-import type { CouponEvent } from "../types";
+import type { DrawEvent } from "../types/couponDataTypes";
+import type { CouponEvent } from "../types/couponDataTypes";
 
 export function mapDrawEventsToCouponEvents(
   events?: DrawEvent[]

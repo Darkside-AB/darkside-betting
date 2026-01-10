@@ -1,6 +1,5 @@
 import './SelectionButton.css';
-
-export type SelectionValue = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+import type { SelectionValue } from '../../types/couponDataTypes';
 
 interface SelectionButtonProps {
   value: SelectionValue;

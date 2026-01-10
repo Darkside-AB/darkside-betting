@@ -1,6 +1,8 @@
-import type { OneXTwo } from "../types";
+import type { SelectionValue } from "./couponDataTypes";
 
 export interface CouponStorage {
-  selections: Record<number, OneXTwo[]>;
-  weightsByEvent: Record<number, [number, number, number]>;
+  valuesByEvent: Record<
+    number,
+    [SelectionValue, SelectionValue, SelectionValue]
+  >;
 }

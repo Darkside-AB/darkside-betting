@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { couponApi } from "../services/couponApi";
-import type { DrawEvent } from "../types";
+import type { DrawEvent } from "../types/couponDataTypes";
 
 type CouponType = "europatipset" | "stryktipset" | undefined;
 

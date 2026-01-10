@@ -12,9 +12,9 @@ import { downloadTextFile } from "./utils/fileDownload";
 import { getValueStrengths } from "./utils/couponMath";
 import { reduceRowsEvenDistribution } from "./utils/reduceRowsEvenDistribution";
 import { calculateEventWeights } from "./utils/calculateEventWeights";
-import type { OneXTwo, CouponRow } from "./types";
-import type { ButtonGroupChange } from "./components/ButtonGroup/ButtonGroup";
-import type { CouponStorage } from "./types/couponStorage";
+import type { SelectionValue, OneXTwo, CouponRow } from "./types/couponDataTypes";
+import { calculateWeightsByEvent } from "./utils/calculateWeightsByEvent";
+import { deriveSelections } from "./utils/deriveSelections";
 import {
   loadCouponState,
   saveCouponState,
@@ -27,60 +27,68 @@ export default function Coupon() {
   const { regCloseDescription, currentNetSale, events, loading, hasEvents, error } = useCouponLogic(couponType);
   const [showWeights, setShowWeights] = React.useState(false);
   const [reducedRows, setReducedRows] = React.useState<OneXTwo[][]>([]);
-
-  const [selections, setSelections] = React.useState<
-    Record<number, OneXTwo[]>
-  >({});
-
-
-  const [weightsByEvent, setWeightsByEvent] = React.useState<
-    Record<number, [number, number, number]>
-  >({});
-
   const [maxRows, setMaxRows] = React.useState(0);
+
+ 
 
   if (!couponType) {
     return <div style={{ color: "red" }}>Invalid coupon type</div>;
   }
 
-  React.useEffect(() => {
-    const stored = loadCouponState(couponType);
+ const hasHydratedRef = React.useRef(false);
 
-    if (!stored) return;
+const [valuesByEvent, setValuesByEvent] = React.useState<
+  Record<number, [SelectionValue, SelectionValue, SelectionValue]>
+>(() => loadCouponState(couponType)?.valuesByEvent ?? {});
 
-    setSelections(stored.selections ?? {});
-    setWeightsByEvent(stored.weightsByEvent ?? {});
-  }, [couponType]);
+// 🔁 Reload when coupon changes
+React.useEffect(() => {
+  const stored = loadCouponState(couponType);
+  setValuesByEvent(stored?.valuesByEvent ?? {});
+  hasHydratedRef.current = false;
+}, [couponType]);
+
+// 💾 Save after hydration
+React.useEffect(() => {
+  if (!hasHydratedRef.current) {
+    hasHydratedRef.current = true;
+    return;
+  }
+
+  saveCouponState(couponType, { valuesByEvent });
+}, [couponType, valuesByEvent]);
 
 
-  React.useEffect(() => {
-    const state: CouponStorage = {
-      selections,
-      weightsByEvent,
-    };
 
-    saveCouponState(couponType, state);
-  }, [couponType, selections, weightsByEvent]);
 
-  const handleSelectionChange = React.useCallback(
-    (eventNumber: number, data: ButtonGroupChange) => {
-      setSelections(prev => ({
+  const weightsByEvent = React.useMemo(
+    () => calculateWeightsByEvent(valuesByEvent),
+    [valuesByEvent]
+  );
+
+
+  const handleButtonGroupChange = React.useCallback(
+    (
+      eventNumber: number,
+      values: [SelectionValue, SelectionValue, SelectionValue]
+    ) => {
+      setValuesByEvent(prev => ({
         ...prev,
-        [eventNumber]: data.selections,
-      }));
-
-      setWeightsByEvent(prev => ({
-        ...prev,
-        [eventNumber]: data.weights,
+        [eventNumber]: values,
       }));
     },
     []
   );
 
 
+  const selections = React.useMemo(() => {
+    return deriveSelections(valuesByEvent);
+  }, [valuesByEvent]);
+
   const baseRows: CouponRow[] = React.useMemo(() => {
     return buildRowsFromSelections(selections);
   }, [selections]);
+
 
   const allRows: CouponRow[] = React.useMemo(() => {
     if (baseRows.length === 0) return [];
@@ -89,7 +97,7 @@ export default function Coupon() {
 
   React.useEffect(() => {
     setReducedRows([]);
-  }, [allRows, weightsByEvent, maxRows]);
+  }, [allRows, valuesByEvent, maxRows]);
 
 
   const buildReducedRows = React.useCallback(() => {
@@ -132,6 +140,8 @@ export default function Coupon() {
   const couponEvents = mapDrawEventsToCouponEvents(events);
 
   const eventWeights = calculateEventWeights(reducedRows);
+
+
 
   Object.entries(eventWeights).forEach(([event, [w1, wX, w2]]) => {
     console.log(`${event}: ${w1}% ${wX}% ${w2}%`);
@@ -236,10 +246,11 @@ export default function Coupon() {
 
               <ButtonGroup
                 eventNumber={event.eventNumber}
+                initialValues={valuesByEvent[event.eventNumber]}
                 valueStrength1={valueStrengths[0]}
                 valueStrengthX={valueStrengths[1]}
                 valueStrength2={valueStrengths[2]}
-                onChange={handleSelectionChange}
+                onChange={handleButtonGroupChange}
               />
             </div>
           );

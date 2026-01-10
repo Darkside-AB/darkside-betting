@@ -1,4 +1,4 @@
-import type { OneXTwo } from "../types";
+import type { OneXTwo } from "../types/couponDataTypes";
 import { buildTargets } from "./buildTargets";
 
 export function reduceRowsEvenDistribution(
