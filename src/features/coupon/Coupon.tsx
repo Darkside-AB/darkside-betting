@@ -5,8 +5,10 @@ import { useParams } from "react-router-dom";
 import { useCouponLogic } from "./hooks/useCouponLogic";
 import { mapDrawEventsToCouponEvents } from "./utils/couponMapper";
 import ButtonGroup from "./components/ButtonGroup/ButtonGroup";
+import SignDistributionFilter from "./components/SignDistributionFilter/SignDistributionFilter";
 import EventWeightsModal from "./components/EventWeightsModal/EventWeightsModal";
 import { cartesian, buildRowsFromSelections } from "./utils/couponMath";
+import { matchesSignRanges } from "./filters/signDistribution";
 import { formatRowsForSvenskaSpel } from "./utils/svenskaSpelFormatter";
 import { downloadTextFile } from "./utils/fileDownload";
 import { getValueStrengths } from "./utils/couponMath";
@@ -30,6 +32,12 @@ export default function Coupon() {
   const [reducedRows, setReducedRows] = React.useState<OneXTwo[][]>([]);
   const [maxRows, setMaxRows] = React.useState(0);
   const [displayMode, setDisplayMode] = React.useState<DisplayMode>('grade');
+  const [signRanges, setSignRanges] = React.useState<Record<"1" | "X" | "2", [number, number]>>({
+    "1": [0, 13],
+    "X": [0, 13],
+    "2": [0, 13],
+  });
+
 
 
 
@@ -61,13 +69,10 @@ export default function Coupon() {
   }, [couponType, valuesByEvent]);
 
 
-
-
   const weightsByEvent = React.useMemo(
     () => calculateWeightsByEvent(valuesByEvent),
     [valuesByEvent]
   );
-
 
   const handleButtonGroupChange = React.useCallback(
     (
@@ -82,7 +87,6 @@ export default function Coupon() {
     []
   );
 
-
   const selections = React.useMemo(() => {
     return deriveSelections(valuesByEvent);
   }, [valuesByEvent]);
@@ -91,22 +95,29 @@ export default function Coupon() {
     return buildRowsFromSelections(selections);
   }, [selections]);
 
-
   const allRows: CouponRow[] = React.useMemo(() => {
     if (baseRows.length === 0) return [];
     return cartesian(baseRows);
   }, [baseRows]);
 
+  const filteredRows = React.useMemo(() => {
+    return allRows.filter(row =>
+      matchesSignRanges(row, signRanges)
+    );
+  }, [allRows, signRanges]);
+
+
   React.useEffect(() => {
     setReducedRows([]);
-  }, [allRows, valuesByEvent, maxRows]);
+  }, [filteredRows, valuesByEvent, maxRows]);
 
 
   const buildReducedRows = React.useCallback(() => {
-    if (allRows.length === 0) return [];
+    if (filteredRows.length === 0) return [];
+
 
     const rows = reduceRowsEvenDistribution(
-      allRows,
+      filteredRows,
       weightsByEvent,
       maxRows
     );
@@ -160,13 +171,17 @@ export default function Coupon() {
             <span className="label">Total rows</span>
             <span className="value">{allRows.length}</span>
           </div>
+          <div className="summary-item">
+            <span className="label">After Filter</span>
+            <span className="value">{filteredRows.length}</span>
+          </div>
 
           <div className="summary-item">
             <span className="label">Playing rows</span>
             <input
               type="number"
               min={1}
-              max={allRows.length || 1}
+              max={filteredRows.length || 1}
               value={maxRows || ""}
               onChange={e => {
                 const val = e.target.value;
@@ -178,7 +193,7 @@ export default function Coupon() {
               }}
               onBlur={e => {
                 const val = Number(e.target.value) || 1;
-                setMaxRows(Math.min(Math.max(val, 1), allRows.length || 1));
+                setMaxRows(Math.min(Math.max(val, 1), filteredRows.length || 1));
               }}
               className="max-rows-inline"
             />
@@ -189,39 +204,47 @@ export default function Coupon() {
             <input
               type="range"
               min={1}
-              max={allRows.length || 1}
+              max={filteredRows.length || 1}
               step={1}
               value={maxRows}
               onChange={e => setMaxRows(Number(e.target.value))}
             />
           </div>
-
-          <div className="summary-item summary-item--compact">
-            <div className="summary-item__value summary-item__value--muted">
-              {couponType === "stryktipset" ? "Stryktipset " : "Europatipset"}
-            </div>
-            <div className="summary-item__value summary-item__value--muted">
-              {regCloseDescription?.split(",")[1]?.trim().split(" ").slice(1).join(" ") ?? ""}
-            </div>
-            <div className="summary-item__value summary-item__value--muted">
-              Omsättning: {currentNetSale}
-            </div>
-          </div>
-
+          <SignDistributionFilter
+            ranges={signRanges}
+            onChange={setSignRanges}
+          />
           <button
             onClick={handleOpenWeights}
-            disabled={allRows.length === 0}
+            disabled={filteredRows.length === 0}
           >
-            View system weights
+            Show weights
           </button>
 
           <button
             onClick={handleExport}
-            disabled={allRows.length === 0}
+            disabled={filteredRows.length === 0}
           >
             Export rows
           </button>
         </div>
+
+        {/* ⬇️ INFO BLOCK LAST */}
+<div className="summary-item summary-item--compact">
+  <div className="summary-item__value summary-item__value--muted">
+    {couponType === "stryktipset" ? "Stryktipset" : "Europatipset"}
+  </div>
+  <div className="summary-item__value summary-item__value--muted">
+    {regCloseDescription?.split(",")[1]
+      ?.trim()
+      .split(" ")
+      .slice(1)
+      .join(" ") ?? ""}
+  </div>
+  <div className="summary-item__value summary-item__value--muted">
+    Omsättning: {currentNetSale}
+  </div>
+</div>
 
         {/* ================= DISPLAY TOGGLE ================= */}
         <div className="coupon-display-toggle-container">
