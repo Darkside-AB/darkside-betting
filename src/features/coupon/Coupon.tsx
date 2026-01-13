@@ -20,6 +20,7 @@ import { deriveSelections } from "./utils/deriveSelections";
 import {
   loadCouponState,
   saveCouponState,
+  clearCouponState
 } from "./utils/couponStorage";
 
 type CouponType = "europatipset" | "stryktipset";
@@ -37,6 +38,7 @@ export default function Coupon() {
     "X": [0, 13],
     "2": [0, 13],
   });
+  const [resetKey, setResetKey] = React.useState(0);
 
 
 
@@ -46,6 +48,20 @@ export default function Coupon() {
   }
 
   const hasHydratedRef = React.useRef(false);
+
+  const handleClearCoupon = () => {
+    clearCouponState(couponType);
+
+    setValuesByEvent({});
+    setReducedRows([]);
+    setMaxRows(0);
+
+    // force full reset of all ButtonGroup components
+    setResetKey(k => k + 1);
+  };
+
+
+
 
   const [valuesByEvent, setValuesByEvent] = React.useState<
     Record<number, [SelectionValue, SelectionValue, SelectionValue]>
@@ -164,7 +180,6 @@ export default function Coupon() {
   return (
     <>
       <section className="tip-card">
-
         {/* ================= SUMMARY ================= */}
         <div className="coupon-summary">
           <div className="summary-item">
@@ -230,21 +245,21 @@ export default function Coupon() {
         </div>
 
         {/* ⬇️ INFO BLOCK LAST */}
-<div className="summary-item summary-item--compact">
-  <div className="summary-item__value summary-item__value--muted">
-    {couponType === "stryktipset" ? "Stryktipset" : "Europatipset"}
-  </div>
-  <div className="summary-item__value summary-item__value--muted">
-    {regCloseDescription?.split(",")[1]
-      ?.trim()
-      .split(" ")
-      .slice(1)
-      .join(" ") ?? ""}
-  </div>
-  <div className="summary-item__value summary-item__value--muted">
-    Omsättning: {currentNetSale}
-  </div>
-</div>
+        <div className="summary-item summary-item--compact">
+          <div className="summary-item__value summary-item__value--muted">
+            {couponType === "stryktipset" ? "Stryktipset" : "Europatipset"}
+          </div>
+          <div className="summary-item__value summary-item__value--muted">
+            {regCloseDescription?.split(",")[1]
+              ?.trim()
+              .split(" ")
+              .slice(1)
+              .join(" ") ?? ""}
+          </div>
+          <div className="summary-item__value summary-item__value--muted">
+            Omsättning: {currentNetSale}
+          </div>
+        </div>
 
         {/* ================= DISPLAY TOGGLE ================= */}
         <div className="coupon-display-toggle-container">
@@ -267,7 +282,7 @@ export default function Coupon() {
           {/* Legend separate below */}
           <div className="triangle-legend">
             <span className="legend-triangle"></span>
-            <span className="legend-text">Underbetted → more value</span>
+            <span className="legend-text">Value bet</span>
           </div>
         </div>
 
@@ -280,7 +295,10 @@ export default function Coupon() {
             : ["X", "X", "X"];
 
           return (
-            <div key={event.eventNumber} className="grid-row">
+            <div
+              key={`${event.eventNumber}-${resetKey}`}
+              className="grid-row"
+            >
               <div className="match-info">
                 <strong>
                   {event.eventNumber}. {event.description}
@@ -306,6 +324,15 @@ export default function Coupon() {
             </div>
           );
         })}
+        {/* ================= CLEAR COUPON ================= */}
+        <div className="coupon-clear-container">
+          <button
+            className="coupon-clear-button"
+            onClick={handleClearCoupon}
+          >
+            Clear coupon
+          </button>
+        </div>
       </section>
 
       <EventWeightsModal

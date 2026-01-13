@@ -480,6 +480,28 @@ footer>div {
   margin: 0.25rem 0;
 }
 
+.coupon-clear-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.coupon-clear-button {
+  background: transparent;
+  border: 1px solid #d33;
+  color: #d33;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.coupon-clear-button:hover {
+  background: #d33;
+  color: #fff;
+}
+
+
 /* ================== RESPONSIVE ================== */
 @media (max-width: 900px) {
   .hero {
