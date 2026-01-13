@@ -44,10 +44,10 @@ const SelectionButton = ({
       {buttonText}
 
 
-      {typeof valueStrength === "number" && valueStrength > 0 && (() => {
+      {typeof valueStrength === "number" && valueStrength > 1 && (() => {
         const minSize = 8; // minimum triangle size
-        const maxSize = 20; // maximum triangle size
-        const size = Math.min(valueStrength * 1.5 + minSize, maxSize);
+        const maxSize = 60; // maximum triangle size
+        const size = Math.min(valueStrength * 18 + minSize, maxSize);
         const color = `rgba(183, 228, 199, ${Math.min(0.3 + valueStrength / 20, 1)})`;
 
         return (
@@ -63,13 +63,13 @@ const SelectionButton = ({
           </span>
         );
       })()}
-      {/*
+      {
       <span className="valueStrengthText">
         {typeof valueStrength === "number"
           ? `${valueStrength > 0 ? "+" : ""}${valueStrength.toFixed(2)}`
           : valueStrength}
       </span>
-*/}
+}
 
     </button>
   );

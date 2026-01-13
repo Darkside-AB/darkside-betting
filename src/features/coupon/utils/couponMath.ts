@@ -49,16 +49,20 @@ export function getValueStrengths(
   ];
 
   const betPct = [
-    betPercents.one,
-    betPercents.x,
-    betPercents.two
+    betPercents.one / 100,
+    betPercents.x / 100,
+    betPercents.two / 100
   ];
 
   const repaymentRate =
     1 / (1 / dodds[0] + 1 / dodds[1] + 1 / dodds[2]);
 
-  return dodds.map((d, i) => (repaymentRate / d) * 100 - betPct[i]);
+  return dodds.map((d, i) =>
+    Number(((repaymentRate / d) / betPct[i]).toFixed(2))
+  );
 }
+
+
 
 
 

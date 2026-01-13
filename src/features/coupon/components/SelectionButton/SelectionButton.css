@@ -1,28 +1,19 @@
 .selectionButton {
   position: relative;
   overflow: hidden;
-  display: flex;
-  /* make button a flex container */
-  flex-direction: column;
-  /* column if you want indicator on top, text below */
-  align-items: center;
-  /* horizontal centering */
-  justify-content: center;
-  /* vertical centering */
-  text-align: center;
-  /* ensure text is centered */
-  height: 48px;
-  /* fixed height if needed */
-  width: 48px;
-  /* fixed width if square */
+  display: flex;              /* make button a flex container */
+  flex-direction: column;     /* column if you want indicator on top, text below */
+  align-items: center;        /* horizontal centering */
+  justify-content: center;    /* vertical centering */
+  text-align: center;         /* ensure text is centered */
+  height: 48px;               /* fixed height if needed */
+  width: 48px;                /* fixed width if square */
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 14px;
-  /* adjust as needed */
-  padding: 0;
-  /* let height/width control sizing */
+  font-size: 14px;            /* adjust as needed */
+  padding: 0;                 /* let height/width control sizing */
   color: white;
 }
 
@@ -31,8 +22,7 @@
 }
 
 .valueStrengthText {
-  font-size: 0.65rem;
-  /* smaller text */
+  font-size: 0.65rem;   /* smaller text */
   line-height: 1;
   margin-left: 4px;
   opacity: 0.85;
@@ -48,24 +38,19 @@
   width: 0;
   height: 0;
 
-  border-top: 24px solid #b7e4c7;
-  /* this will be overridden by inline style */
-  border-left: 24px solid transparent;
-  /* overridden */
+  border-top: 24px solid #b7e4c7; /* this will be overridden by inline style */
+  border-left: 24px solid transparent; /* overridden */
 }
 
 /* V text */
 .valueCornerText {
   position: absolute;
-  top: -18px;
-  /* moved DOWN */
-  right: 4px;
-  /* moved LEFT */
+  top: -18px;   /* moved DOWN */
+  right: 4px;   /* moved LEFT */
 
   font-size: 9px;
   font-weight: 600;
-  color: #1b5e20;
-  /* darker green for contrast */
+  color: #81186f; /* darker green for contrast */
 
   line-height: 1;
   pointer-events: none;
