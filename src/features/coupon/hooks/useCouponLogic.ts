@@ -9,9 +9,9 @@ export function useCouponLogic(couponType: CouponType) {
   const [loading, setLoading] = useState(true);
   const [hasEvents, setHasEvents] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentNetSale, setCurrentNetSale] = useState<string | null>(null);
+  const [currentNetSale, setCurrentNetSale] = useState<number>(0);
   const [regCloseDescription, setregCloseDescription] = useState<string | null>(null);
-  
+
 
   useEffect(() => {
     if (!couponType) return;
@@ -33,10 +33,11 @@ export function useCouponLogic(couponType: CouponType) {
 
         const drawEvents = draw?.drawEvents ?? [];
         const netSale = draw?.currentNetSale ?? null;
+        const netSaleNumber = netSale ? Number(netSale.replace(",", ".")) : 0;
+        setCurrentNetSale(netSaleNumber);
         const closeDescription = draw?.regCloseDescription ?? null;
 
         setEvents(drawEvents);
-        setCurrentNetSale(netSale);
         setregCloseDescription(closeDescription);
         setHasEvents(drawEvents.length > 0);
       } catch (err) {

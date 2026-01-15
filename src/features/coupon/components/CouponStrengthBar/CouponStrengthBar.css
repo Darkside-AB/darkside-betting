@@ -1,0 +1,48 @@
+.coupon-strength {
+  margin-top: 12px;
+}
+
+.coupon-strength__title {
+  font-size: 14px;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.coupon-strength__bar {
+  height: 10px;
+  border-radius: 5px;
+  background-color: #eee;
+  overflow: hidden;
+}
+
+.coupon-strength__fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Color states */
+.coupon-strength__fill.low {
+  background-color: #4a90e2;
+}
+
+.coupon-strength__fill.balanced {
+  background-color: #7ed321;
+}
+
+.coupon-strength__fill.high {
+  background-color: #f5a623;
+}
+
+.coupon-strength__fill.extreme {
+  background-color: #d0021b;
+}
+
+.coupon-strength__label {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.coupon-strength__value {
+  margin-left: 6px;
+  opacity: 0.6;
+}

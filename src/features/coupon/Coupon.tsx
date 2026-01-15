@@ -7,27 +7,30 @@ import { mapDrawEventsToCouponEvents } from "./utils/couponMapper";
 import ButtonGroup from "./components/ButtonGroup/ButtonGroup";
 import SignDistributionFilter from "./components/SignDistributionFilter/SignDistributionFilter";
 import EventWeightsModal from "./components/EventWeightsModal/EventWeightsModal";
-import { cartesian, buildRowsFromSelections } from "./utils/couponMath";
+import { cartesian, buildRowsFromSelections, getNumericValueStrengths, getValueStrengths } from "./utils/couponMath";
 import { matchesSignRanges } from "./filters/signDistribution";
 import { formatRowsForSvenskaSpel } from "./utils/svenskaSpelFormatter";
 import { downloadTextFile } from "./utils/fileDownload";
-import { getValueStrengths } from "./utils/couponMath";
 import { reduceRowsEvenDistribution } from "./utils/reduceRowsEvenDistribution";
 import { calculateEventWeights } from "./utils/calculateEventWeights";
 import type { SelectionValue, OneXTwo, CouponRow } from "./types/couponDataTypes";
 import { calculateWeightsByEvent } from "./utils/calculateWeightsByEvent";
 import { deriveSelections } from "./utils/deriveSelections";
+import { calculateCouponStrengthFromEvents } from "./utils/couponStrength";
 import {
   loadCouponState,
   saveCouponState,
   clearCouponState
 } from "./utils/couponStorage";
+import { CouponStrengthBar } from "./components/CouponStrengthBar/CouponStrengthBar";
 
 type CouponType = "europatipset" | "stryktipset";
 type DisplayMode = 'grade' | 'weight' | 'both';
 
 export default function Coupon() {
   const { couponType } = useParams<{ couponType: CouponType }>();
+  const hasHydratedRef = React.useRef(false);
+
   const { regCloseDescription, currentNetSale, events, loading, hasEvents, error } = useCouponLogic(couponType);
   const [showWeights, setShowWeights] = React.useState(false);
   const [reducedRows, setReducedRows] = React.useState<OneXTwo[][]>([]);
@@ -41,13 +44,9 @@ export default function Coupon() {
   const [resetKey, setResetKey] = React.useState(0);
 
 
-
-
   if (!couponType) {
     return <div style={{ color: "red" }}>Invalid coupon type</div>;
   }
-
-  const hasHydratedRef = React.useRef(false);
 
   const handleClearCoupon = () => {
     clearCouponState(couponType);
@@ -160,17 +159,23 @@ export default function Coupon() {
 
     downloadTextFile(`${couponType}-rows.txt`, content);
   };
+  const couponEvents = mapDrawEventsToCouponEvents(events);
+  const couponStrength = React.useMemo(() => {
+    return calculateCouponStrengthFromEvents(
+      couponEvents,
+      weightsByEvent,
+      getNumericValueStrengths
+    );
+  }, [couponEvents, weightsByEvent]);
 
 
   if (loading) return <Spinner />;
   if (error) return <div style={{ color: "red" }}>❌ {error}</div>;
   if (!hasEvents) return <div className="api-warning">⚠️ No events available</div>;
 
-  const couponEvents = mapDrawEventsToCouponEvents(events);
+
 
   const eventWeights = calculateEventWeights(reducedRows);
-
-
 
   Object.entries(eventWeights).forEach(([event, [w1, wX, w2]]) => {
     console.log(`${event}: ${w1}% ${wX}% ${w2}%`);
@@ -257,8 +262,12 @@ export default function Coupon() {
               .join(" ") ?? ""}
           </div>
           <div className="summary-item__value summary-item__value--muted">
-            Omsättning: {currentNetSale}
+            Omsättning: {currentNetSale} Svenska jädra Kronor
           </div>
+          <div className="summary-item__value summary-item__value--muted">
+            <CouponStrengthBar couponStrength={couponStrength} />
+          </div>
+
         </div>
 
         {/* ================= DISPLAY TOGGLE ================= */}
