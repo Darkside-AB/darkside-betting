@@ -1,57 +1,61 @@
+import { getNumericValueStrengths } from "./couponMath";
+
 export type SignStrengths = [number, number, number];
 export type SignWeights = [number, number, number];
 
 export function calculateEventStrength(
-  strengths: SignStrengths,
-  weights: SignWeights
+    strengths: SignStrengths,
+    weights: SignWeights
 ): number {
-  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
 
-  // No selected signs → neutral event
-  if (totalWeight === 0) return 1;
+    // No selected signs → neutral event
+    if (totalWeight === 0) return 1;
 
-  return strengths.reduce((sum, strength, i) => {
-    return sum + strength * (weights[i] / totalWeight);
-  }, 0);
+    return strengths.reduce((sum, strength, i) => {
+        return sum + strength * (weights[i] / totalWeight);
+    }, 0);
 }
 
 export function calculateCouponStrength(
-  eventStrengths: number[]
+    eventStrengths: number[]
 ): number {
-  return eventStrengths.reduce(
-    (product, strength) => product * strength,
-    1
-  );
+    return eventStrengths.reduce(
+        (product, strength) => product * strength,
+        1
+    );
 }
 
-export function calculateCouponStrengthFromEvents(
-  events: {
-    eventNumber: number;
-    odds?: unknown;
-    svenskaFolket?: unknown;
-  }[],
-  weightsByEvent: Record<number, SignWeights>,
-  getValueStrengths: (
-    odds: unknown,
-    svenskaFolket: unknown
-  ) => SignStrengths
+export function calculateCouponStrengthFromEvents<
+    TOdds,
+    TSvenskaFolket
+>(
+    events: {
+        eventNumber: number;
+        odds?: TOdds;
+        svenskaFolket?: TSvenskaFolket;
+    }[],
+    weightsByEvent: Record<number, SignWeights>,
+    getNumericValueStrengths: (
+        odds: TOdds,
+        svenskaFolket: TSvenskaFolket
+    ) => SignStrengths
 ): number {
-  return events.reduce((product, event) => {
-    if (!event.odds || !event.svenskaFolket) return product;
+    return events.reduce((product, event) => {
+        // Narrow types: only call function if both are defined
+        const { odds, svenskaFolket } = event;
+        if (odds == null || svenskaFolket == null) return product;
 
-    const weights = weightsByEvent[event.eventNumber];
-    if (!weights) return product;
+        const weights = weightsByEvent[event.eventNumber];
+        if (!weights) return product;
 
-    const strengths = getValueStrengths(
-      event.odds,
-      event.svenskaFolket
-    );
+        // TS now knows odds and svenskaFolket are defined
+        const strengths = getNumericValueStrengths(odds, svenskaFolket);
 
-    const eventStrength = calculateEventStrength(
-      strengths,
-      weights
-    );
+        const eventStrength = calculateEventStrength(strengths, weights);
 
-    return product * eventStrength;
-  }, 1);
+        return product * eventStrength;
+    }, 1);
 }
+
+
