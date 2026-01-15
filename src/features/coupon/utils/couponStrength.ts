@@ -1,5 +1,3 @@
-import { getNumericValueStrengths } from "./couponMath";
-
 export type SignStrengths = [number, number, number];
 export type SignWeights = [number, number, number];
 
