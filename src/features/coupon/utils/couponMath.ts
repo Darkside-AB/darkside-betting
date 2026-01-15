@@ -62,8 +62,16 @@ export function getValueStrengths(
   );
 }
 
+export type NumericStrengths = [number, number, number];
 
+export function getNumericValueStrengths(
+  odds?: OddsOneXTwo,
+  betPercents?: SvenskaFolket
+): NumericStrengths {
+  const strengths = getValueStrengths(odds, betPercents);
 
+  return strengths.map(v => (v === "X" ? 1 : v)) as NumericStrengths;
+}
 
 
 export function filterRowsByMinMax(
