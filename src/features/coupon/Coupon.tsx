@@ -23,6 +23,14 @@ import {
   clearCouponState
 } from "./utils/couponStorage";
 import { CouponStrengthBar } from "./components/CouponStrengthBar/CouponStrengthBar";
+import { calcNormalizedSignProbs } from "./utils/ev/probabilities";
+import { normalizeWeights } from "./utils/ev/weights";
+import { calcEventHitProbability } from "./utils/ev/eventHitProbability";
+import { calcMeanAndVariance } from "./utils/ev/distribution";
+import { calcHitDistribution10to13 } from "./utils/ev/calcHitDistribution10to13";
+import { calculateExpectedValue } from "./utils/ev/calculateExpectedValue";
+
+
 
 type CouponType = "europatipset" | "stryktipset";
 type DisplayMode = 'grade' | 'weight' | 'both';
@@ -168,6 +176,50 @@ export default function Coupon() {
     );
   }, [couponEvents, weightsByEvent]);
 
+  const eventHitProbabilities = React.useMemo(() => {
+    return couponEvents.map(event => {
+      const valueStrengths = getNumericValueStrengths(
+        event.odds,
+        event.svenskaFolket
+      );
+
+      const signProbs = calcNormalizedSignProbs(
+        valueStrengths,
+        event.svenskaFolket
+      );
+
+      const weights = weightsByEvent[event.eventNumber] ?? [0, 0, 0];
+      const normalizedWeights = normalizeWeights(weights);
+
+      return calcEventHitProbability(signProbs, normalizedWeights);
+    });
+  }, [couponEvents, weightsByEvent]);
+
+  const { mean, variance } = React.useMemo(() => {
+    return calcMeanAndVariance(eventHitProbabilities);
+  }, [eventHitProbabilities]);
+
+  const hitDistribution = React.useMemo(() => {
+    return calcHitDistribution10to13(eventHitProbabilities);
+  }, [eventHitProbabilities]);
+
+  console.log('hitDistribution', hitDistribution);
+
+  const p13Display = React.useMemo(() => {
+    const p13 = hitDistribution[13];
+
+    if (!p13 || p13 <= 0) return "≈ 0";
+
+    return `1 in ${Math.round(1 / p13).toLocaleString()}`;
+  }, [hitDistribution]);
+
+  const evResult = React.useMemo(() => {
+    return calculateExpectedValue(
+      hitDistribution,
+      couponStrength
+    );
+  }, [hitDistribution, couponStrength]);
+
 
   if (loading) return <Spinner />;
   if (error) return <div style={{ color: "red" }}>❌ {error}</div>;
@@ -262,11 +314,61 @@ export default function Coupon() {
               .join(" ") ?? ""}
           </div>
           <div className="summary-item__value summary-item__value--muted">
-            Omsättning: {currentNetSale} Svenska jädra Kronor
+            Omsättning: {currentNetSale} SvKr
           </div>
           <div className="summary-item__value summary-item__value--muted">
             <CouponStrengthBar couponStrength={couponStrength} />
           </div>
+
+          <div className="summary-item">
+            {/* ===== EXPECTED VALUE (PRIMARY DECISION METRIC) ===== */}
+            <div className={`ev-primary ev-${evResult.classification}`}>
+              <span className="ev-score">
+                {evResult.ev.toFixed(2)}
+              </span>
+              <span className="ev-label"> Expected Value, Stefans return, to be continued!!</span>
+              <span className="metric-help">
+                Long-term expected return compared to an average coupon
+              </span>
+            </div>
+
+            {/* ===== SUPPORTING METRICS ===== */}
+            <span className="label">Expected correct signs</span>
+
+            <div className="summary-metric">
+              <span className="value">{mean.toFixed(2)}</span>
+              <span className="metric-help">
+                Average number of correct matches per row
+              </span>
+            </div>
+
+            <div className="summary-metric">
+              <span className="value">{variance.toFixed(2)}</span>
+              <span className="metric-help">
+                Result volatility — higher means bigger payout potential:
+                {" Variance ~1.5 → safe ~2.0–2.5 → balanced >2.5 → aggressive"}
+              </span>
+            </div>
+
+            <div className="summary-metric">
+              <span className="label">Chance to hit 13 with one row</span>
+              <span className="metric-help">{p13Display} rows</span>
+            </div>
+          </div>
+          <div className="summary-item">
+  <span className="label">Hit distribution (10–13)</span>
+  <div className="summary-metric">
+    {Object.entries(hitDistribution).map(([k, v]) => (
+      <div key={k}>
+        <span className="value">{k}:</span>{" "}
+        <span className="metric-help">{v.toExponential(2)}</span>
+      </div>
+    ))}
+  </div>
+</div>
+
+
+
 
         </div>
 
