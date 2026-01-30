@@ -7,22 +7,23 @@ type Props = {
 
 function normalizeStrength(strength: number): number {
   const min = 0;    // minimum expected strength
-  const max = 50;   // adjust this to your max realistic value
+  const max = 6;   // adjust this to your max realistic value
   const capped = Math.min(Math.max(strength, min), max);
   return ((capped - min) / (max - min)) * 100;
 }
 
 function getLabel(strength: number) {
-  if (strength < 1) return "Low reward";
-  if (strength < 10) return "Balanced";
-  if (strength < 20) return "High reward";
+  if (strength < 1.01) return "Nothing";
+  if (strength < 1.5) return "Low reward";
+  if (strength < 2.8) return "Balanced";
+  if (strength < 5.5) return "High reward";
   return "Extreme";
 }
 
 function getColorClass(strength: number) {
-  if (strength < 1) return "low";
-  if (strength < 10) return "balanced";
-  if (strength < 20) return "high";
+  if (strength < 1.5) return "low";
+  if (strength < 2.8) return "balanced";
+  if (strength < 5.5) return "high";
   return "extreme";
 }
 
@@ -36,7 +37,7 @@ export const CouponStrengthBar: React.FC<Props> = ({
   return (
     <div className="coupon-strength">
       <div className="coupon-strength__title">
-        Reward potential
+        Coupon strength against swedish people
       </div>
 
       <div className="coupon-strength__bar">
