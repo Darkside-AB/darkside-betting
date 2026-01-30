@@ -29,6 +29,9 @@ import { calcEventHitProbability } from "./utils/ev/eventHitProbability";
 import { calcMeanAndVariance } from "./utils/ev/distribution";
 import { calcHitDistribution10to13 } from "./utils/ev/calcHitDistribution10to13";
 import { calculateExpectedValue } from "./utils/ev/calculateExpectedValue";
+import { calculateExpectedMoney } from "./utils/ev/calculateExpectedMoney";
+import { calcPoolShareForCoupon } from "./utils/ev/calcPoolShare";
+import { StatsOverview } from './components/StatsOverview/StatsOverview';
 
 
 
@@ -66,9 +69,6 @@ export default function Coupon() {
     // force full reset of all ButtonGroup components
     setResetKey(k => k + 1);
   };
-
-
-
 
   const [valuesByEvent, setValuesByEvent] = React.useState<
     Record<number, [SelectionValue, SelectionValue, SelectionValue]>
@@ -195,6 +195,25 @@ export default function Coupon() {
     });
   }, [couponEvents, weightsByEvent]);
 
+  const svenskaFolketByEvent = React.useMemo(() => {
+    const map: Record<number, any> = {};
+    couponEvents.forEach(ev => {
+      if (ev.svenskaFolket) {
+        map[ev.eventNumber] = ev.svenskaFolket;
+      }
+    });
+    return map;
+  }, [couponEvents]);
+
+  const poolShare = React.useMemo(() => {
+    return calcPoolShareForCoupon(
+      filteredRows.length ? filteredRows : allRows,
+      svenskaFolketByEvent,
+      Number(currentNetSale) || 0
+    );
+  }, [filteredRows, allRows, svenskaFolketByEvent, currentNetSale]);
+
+
   const { mean, variance } = React.useMemo(() => {
     return calcMeanAndVariance(eventHitProbabilities);
   }, [eventHitProbabilities]);
@@ -205,22 +224,22 @@ export default function Coupon() {
 
   console.log('hitDistribution', hitDistribution);
 
-  const p13Display = React.useMemo(() => {
-    const p13 = hitDistribution[13];
-
-    if (!p13 || p13 <= 0) return "≈ 0";
-
-    return `1 in ${Math.round(1 / p13).toLocaleString()}`;
-  }, [hitDistribution]);
-
-  const evResult = React.useMemo(() => {
+  const evValue = React.useMemo(() => {
     return calculateExpectedValue(
       hitDistribution,
       couponStrength
     );
   }, [hitDistribution, couponStrength]);
 
+  const expectedMoneyRaw = React.useMemo(() => {
+    return calculateExpectedMoney(
+      hitDistribution,
+      Number(currentNetSale),
+      couponStrength
+    );
+  }, [hitDistribution, currentNetSale, couponStrength]);
 
+  const expectedMoneyAdjusted = expectedMoneyRaw * poolShare;
   if (loading) return <Spinner />;
   if (error) return <div style={{ color: "red" }}>❌ {error}</div>;
   if (!hasEvents) return <div className="api-warning">⚠️ No events available</div>;
@@ -320,57 +339,18 @@ export default function Coupon() {
             <CouponStrengthBar couponStrength={couponStrength} />
           </div>
 
-          <div className="summary-item">
-            {/* ===== EXPECTED VALUE (PRIMARY DECISION METRIC) ===== */}
-            <div className={`ev-primary ev-${evResult.classification}`}>
-              <span className="ev-score">
-                {evResult.ev.toFixed(2)}
-              </span>
-              <span className="ev-label"> Expected Value, Stefans return, to be continued!!</span>
-              <span className="metric-help">
-                Long-term expected return compared to an average coupon
-              </span>
-            </div>
-
-            {/* ===== SUPPORTING METRICS ===== */}
-            <span className="label">Expected correct signs</span>
-
-            <div className="summary-metric">
-              <span className="value">{mean.toFixed(2)}</span>
-              <span className="metric-help">
-                Average number of correct matches per row
-              </span>
-            </div>
-
-            <div className="summary-metric">
-              <span className="value">{variance.toFixed(2)}</span>
-              <span className="metric-help">
-                Result volatility — higher means bigger payout potential:
-                {" Variance ~1.5 → safe ~2.0–2.5 → balanced >2.5 → aggressive"}
-              </span>
-            </div>
-
-            <div className="summary-metric">
-              <span className="label">Chance to hit 13 with one row</span>
-              <span className="metric-help">{p13Display} rows</span>
-            </div>
-          </div>
-          <div className="summary-item">
-  <span className="label">Hit distribution (10–13)</span>
-  <div className="summary-metric">
-    {Object.entries(hitDistribution).map(([k, v]) => (
-      <div key={k}>
-        <span className="value">{k}:</span>{" "}
-        <span className="metric-help">{v.toExponential(2)}</span>
-      </div>
-    ))}
-  </div>
+          <div style={{ padding: "24px" }}>
+  <StatsOverview
+    ev={evValue.ev.toFixed(0)}
+    mean={mean.toFixed(2)}
+    variance={variance.toFixed(2)}
+    expectedPayoutRaw={expectedMoneyRaw.toFixed(0)}
+    expectedPayoutAdjusted={expectedMoneyAdjusted.toFixed(0)}
+  />
 </div>
 
 
-
-
-        </div>
+          </div>
 
         {/* ================= DISPLAY TOGGLE ================= */}
         <div className="coupon-display-toggle-container">

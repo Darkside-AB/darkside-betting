@@ -393,15 +393,6 @@ body {
   line-height: 1.2;
 }
 
-.ev-primary {
-  margin-bottom: 0.75rem;
-}
-
-.ev-score {
-  font-size: 1.6rem;
-  font-weight: bold;
-}
-
 .ev-strong .ev-score { color: #1a7f37; }
 .ev-neutral .ev-score { color: #b08900; }
 .ev-weak .ev-score { color: #b42318; }
