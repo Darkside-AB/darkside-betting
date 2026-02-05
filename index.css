@@ -359,6 +359,53 @@ body {
   margin-bottom: 1rem;
 }
 
+/* Data mode, back test - API */
+
+.data-mode-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-buttons button {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  background: #f4f4f4;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.mode-buttons button.active {
+  background: #0077ff;
+  color: white;
+  border-color: #0077ff;
+  font-weight: 600;
+}
+
+.backtest-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 2px;
+}
+
+.backtest-row input[type="text"] {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 260px;
+}
+
+
+
 /* ================== API WARNING ================== */
 .api-warning {
   color: orange;

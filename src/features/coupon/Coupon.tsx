@@ -13,7 +13,7 @@ import { formatRowsForSvenskaSpel } from "./utils/svenskaSpelFormatter";
 import { downloadTextFile } from "./utils/fileDownload";
 import { reduceRowsEvenDistribution } from "./utils/reduceRowsEvenDistribution";
 import { calculateEventWeights } from "./utils/calculateEventWeights";
-import type { SelectionValue, OneXTwo, CouponRow } from "./types/couponDataTypes";
+import type { SelectionValue, OneXTwo, CouponRow, DrawEvent } from "./types/couponDataTypes";
 import { calculateWeightsByEvent } from "./utils/calculateWeightsByEvent";
 import { deriveSelections } from "./utils/deriveSelections";
 import { calculateCouponStrengthFromEvents } from "./utils/couponStrength";
@@ -32,17 +32,28 @@ import { calculateExpectedValue } from "./utils/ev/calculateExpectedValue";
 import { calculateExpectedMoney } from "./utils/ev/calculateExpectedMoney";
 import { calcPoolShareForCoupon } from "./utils/ev/calcPoolShare";
 import { StatsOverview } from './components/StatsOverview/StatsOverview';
-
-
+import { readJsonFile } from "./utils/fileUpload";
+import { evaluateBacktest } from "./utils/backtest";
 
 type CouponType = "europatipset" | "stryktipset";
 type DisplayMode = 'grade' | 'weight' | 'both';
+type DataMode = "api" | "backtest";
 
 export default function Coupon() {
+  const [dataMode, setDataMode] = React.useState<DataMode>("api");
+  const [backtestData, setBacktestData] = React.useState<DrawEvent[] | null>(null);
+  const [backtestResult, setBacktestResult] = React.useState<{
+    hits10: number;
+    hits11: number;
+    hits12: number;
+    hits13: number;
+  } | null>(null);
+  const [reloadKey, setReloadKey] = React.useState(0);
+  const [winningRow, setWinningRow] = React.useState("");
   const { couponType } = useParams<{ couponType: CouponType }>();
   const hasHydratedRef = React.useRef(false);
 
-  const { regCloseDescription, currentNetSale, events, loading, hasEvents, error } = useCouponLogic(couponType);
+  const { regCloseDescription, currentNetSale, events, loading, hasEvents, error } = useCouponLogic(couponType, backtestData, reloadKey);
   const [showWeights, setShowWeights] = React.useState(false);
   const [reducedRows, setReducedRows] = React.useState<OneXTwo[][]>([]);
   const [maxRows, setMaxRows] = React.useState(0);
@@ -158,8 +169,8 @@ export default function Coupon() {
 
 
   const handleExport = () => {
-    const rows =
-      reducedRows.length > 0 ? reducedRows : buildReducedRows();
+
+    const rows = buildReducedRows();
 
     if (rows.length === 0) return;
 
@@ -167,6 +178,45 @@ export default function Coupon() {
 
     downloadTextFile(`${couponType}-rows.txt`, content);
   };
+  console.log("Winning row: " + winningRow)
+
+  const handleBacktest = () => {
+    console.log("🔥 handleBacktest clicked");
+
+    if (!winningRow) {
+      console.log("❌ No winningRow");
+      return;
+    }
+
+    const rows = buildReducedRows();
+
+    if (rows.length === 0) {
+      console.log("❌ No rows");
+      return;
+    }
+
+    const winningArray: OneXTwo[] = winningRow
+      .toUpperCase()
+      .split("")
+      .map(char => {
+        if (char === "1") return 1;
+        if (char === "X") return 2;
+        if (char === "2") return 3;
+        return null;
+      })
+      .filter((v): v is OneXTwo => v !== null);
+
+    console.log("rows:", rows.length);
+    console.log("winningArray:", winningArray);
+
+    const result = evaluateBacktest(rows, winningArray);
+
+    console.log("✅ Backtest result:", result);
+    setBacktestResult(result);
+  };
+
+
+
   const couponEvents = mapDrawEventsToCouponEvents(events);
   const couponStrength = React.useMemo(() => {
     return calculateCouponStrengthFromEvents(
@@ -240,17 +290,41 @@ export default function Coupon() {
   }, [hitDistribution, currentNetSale, couponStrength]);
 
   const expectedMoneyAdjusted = expectedMoneyRaw * poolShare;
+
   if (loading) return <Spinner />;
   if (error) return <div style={{ color: "red" }}>❌ {error}</div>;
+  /*
   if (!hasEvents) return <div className="api-warning">⚠️ No events available</div>;
+  */
 
+  const isBacktestReady =
+    dataMode === "backtest"
+      ? filteredRows.length > 0 && winningRow.length > 0
+      : filteredRows.length > 0;
 
+  console.log("test ready: " + isBacktestReady)
 
   const eventWeights = calculateEventWeights(reducedRows);
 
   Object.entries(eventWeights).forEach(([event, [w1, wX, w2]]) => {
     console.log(`${event}: ${w1}% ${wX}% ${w2}%`);
   });
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const data = await readJsonFile<DrawEvent[]>(file);
+      setBacktestData(data);
+      setDataMode("backtest");
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
 
 
   return (
@@ -312,12 +386,15 @@ export default function Coupon() {
             Show weights
           </button>
 
+
+
           <button
-            onClick={handleExport}
-            disabled={filteredRows.length === 0}
+            onClick={dataMode === "backtest" ? handleBacktest : handleExport}
+            disabled={!isBacktestReady}
           >
-            Export rows
+            {dataMode === "backtest" ? "Run backtest" : "Export rows"}
           </button>
+
         </div>
 
         {/* ⬇️ INFO BLOCK LAST */}
@@ -339,18 +416,80 @@ export default function Coupon() {
             <CouponStrengthBar couponStrength={couponStrength} />
           </div>
 
-          <div style={{ padding: "24px" }}>
-  <StatsOverview
-    ev={evValue.ev.toFixed(0)}
-    mean={mean.toFixed(2)}
-    variance={variance.toFixed(2)}
-    expectedPayoutRaw={expectedMoneyRaw.toFixed(0)}
-    expectedPayoutAdjusted={expectedMoneyAdjusted.toFixed(0)}
-  />
-</div>
+          <div style={{ marginBottom: "12px", fontWeight: 500 }}>
+            {dataMode === "backtest" && (
+              <span style={{ color: "orange" }}>Backtest mode</span>
+            )}
 
-
+            {dataMode === "api" && !hasEvents && (
+              <span style={{ color: "red" }}>
+                ⚠️ {couponType === "stryktipset" ? "Stryktipset" : "Europatipset"} has no events yet
+              </span>
+            )}
           </div>
+
+          <div className="data-mode-toggle">
+            <div className="mode-buttons">
+              <button disabled={dataMode === "api"}
+                onClick={() => {
+                  setDataMode("api");
+                  setBacktestData(null);      // exit backtest
+                  setReloadKey(k => k + 1);   // 🔁 force reload
+                }}
+                className={dataMode === "api" ? "active" : ""}
+              >
+                📡 Live
+              </button>
+
+              <button
+                onClick={() => setDataMode("backtest")}
+                className={dataMode === "backtest" ? "active" : ""}
+              >
+                Backtest
+              </button>
+            </div>
+
+            {dataMode === "backtest" && (
+              <div className="backtest-controls">
+                <div className="backtest-row">
+                  <input type="file" accept=".json" onChange={handleFileUpload} />
+                </div>
+
+                <div className="backtest-row">
+                  <input
+                    type="text"
+                    placeholder="Winning row (e.g. 1X21X2X1X2...)"
+                    value={winningRow}
+                    onChange={e => setWinningRow(e.target.value)}
+                  />
+                </div>
+
+                {backtestResult && (
+                  <div className="backtest-result">
+                    <strong>Backtest result</strong>
+                    <div>13 rätt: {backtestResult.hits13}</div>
+                    <div>12 rätt: {backtestResult.hits12}</div>
+                    <div>11 rätt: {backtestResult.hits11}</div>
+                    <div>10 rätt: {backtestResult.hits10}</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+
+          <div style={{ padding: "24px" }}>
+            <StatsOverview
+              ev={evValue.ev.toFixed(0)}
+              mean={mean.toFixed(2)}
+              variance={variance.toFixed(2)}
+              expectedPayoutRaw={expectedMoneyRaw.toFixed(0)}
+              expectedPayoutAdjusted={expectedMoneyAdjusted.toFixed(0)}
+            />
+          </div>
+
+
+        </div>
 
         {/* ================= DISPLAY TOGGLE ================= */}
         <div className="coupon-display-toggle-container">
