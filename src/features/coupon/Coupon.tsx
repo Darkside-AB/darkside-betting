@@ -34,6 +34,8 @@ import { calcPoolShareForCoupon } from "./utils/ev/calcPoolShare";
 import { StatsOverview } from './components/StatsOverview/StatsOverview';
 import { readJsonFile } from "./utils/fileUpload";
 import { evaluateBacktest } from "./utils/backtest";
+import { evaluateFavouriteProfile } from "./utils/favouriteAnalysis"
+
 
 type CouponType = "europatipset" | "stryktipset";
 type DisplayMode = 'grade' | 'weight' | 'both';
@@ -48,6 +50,22 @@ export default function Coupon() {
     hits12: number;
     hits13: number;
   } | null>(null);
+
+  const [favouriteProfile, setFavouriteProfile] = React.useState<{
+    favouriteCount: number;
+    valueCount: number;
+    skrallCount: number;
+    totalMatches: number;
+
+    oneCount: number;
+    xCount: number;
+    twoCount: number;
+
+    favouriteRatio: number;
+    valueRatio: number;
+    skrallRatio: number;
+  } | null>(null);
+
   const [reloadKey, setReloadKey] = React.useState(0);
   const [winningRow, setWinningRow] = React.useState("");
   const { couponType } = useParams<{ couponType: CouponType }>();
@@ -213,6 +231,12 @@ export default function Coupon() {
 
     console.log("✅ Backtest result:", result);
     setBacktestResult(result);
+
+    const favProfile = evaluateFavouriteProfile(
+      winningArray,
+      couponEvents
+    );
+    setFavouriteProfile(favProfile);
   };
 
 
@@ -324,8 +348,6 @@ export default function Coupon() {
       alert((err as Error).message);
     }
   };
-
-
 
   return (
     <>
@@ -467,12 +489,60 @@ export default function Coupon() {
                 {backtestResult && (
                   <div className="backtest-result">
                     <strong>Backtest result</strong>
+                    <br />
+                      <span style={{ fontSize: "11px", opacity: 0.7 }}>
+                        Your result choosing selections on uploaded history round compared to the winning row
+                      </span>
                     <div>13 rätt: {backtestResult.hits13}</div>
                     <div>12 rätt: {backtestResult.hits12}</div>
                     <div>11 rätt: {backtestResult.hits11}</div>
                     <div>10 rätt: {backtestResult.hits10}</div>
+                    <hr style={{ margin: "12px 0" }} />
                   </div>
                 )}
+                {favouriteProfile && (
+                  <div className="backtest-result">
+                    <div style={{ marginBottom: "6px" }}>
+                      <strong>Winning row:</strong> {winningRow}
+                      <br />
+                      <span style={{ fontSize: "11px", opacity: 0.7 }}>
+                        Comparison between the winning row and the history round (favourites, value picks and skrällar)
+                      </span>
+                    </div>
+
+                    <div>
+                      Favourites: {favouriteProfile.favouriteCount} /{" "}
+                      {favouriteProfile.totalMatches}
+                    </div>
+                    <div>
+                      Value outcomes: {favouriteProfile.valueCount} /{" "}
+                      {favouriteProfile.totalMatches}
+                    </div>
+                    <div>
+                      Skrällar: {favouriteProfile.skrallCount} /{" "}
+                      {favouriteProfile.totalMatches}
+                    </div>
+
+                    <div style={{ height: "16px" }} />
+
+                    <div>1 outcomes: {favouriteProfile.oneCount}</div>
+                    <div>X outcomes: {favouriteProfile.xCount}</div>
+                    <div>2 outcomes: {favouriteProfile.twoCount}</div>
+
+                    <div style={{ height: "16px" }} />
+
+                    <div>
+                      Favourite ratio: {(favouriteProfile.favouriteRatio * 100).toFixed(0)}%
+                    </div>
+                    <div>
+                      Value ratio: {(favouriteProfile.valueRatio * 100).toFixed(0)}%
+                    </div>
+                    <div>
+                      Skräll ratio: {(favouriteProfile.skrallRatio * 100).toFixed(0)}%
+                    </div>
+                  </div>
+                )}
+
               </div>
             )}
           </div>
